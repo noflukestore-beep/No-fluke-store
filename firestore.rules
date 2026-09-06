@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function esAdmin() {
+      return request.auth != null && request.auth.token.rol == 'admin';
+    }
+
+    // Catálogo: lectura pública, escritura solo admin.
+    match /productos/{id} {
+      allow read: if true;
+      allow write: if esAdmin();
+    }
+
+    match /categorias/{id} {
+      allow read: if true;
+      allow write: if esAdmin();
+    }
+
+    match /config/{id} {
+      allow read: if true;
+      allow write: if esAdmin();
+    }
+
+    // Pedidos: NADIE los toca desde el cliente.
+    // Se crean y modifican solo con el Admin SDK desde el servidor.
+    match /pedidos/{id} {
+      allow read, write: if esAdmin();
+    }
+  }
+}

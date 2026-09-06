@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -17,23 +18,6 @@ const ANCLA_BARRIDO = ["25% 28%", "75% 28%", "25% 72%", "75% 72%"];
 
 const GRADIENTE_MARCA =
   "linear-gradient(135deg, #0b8f43 0%, #16db65 45%, #4dff9e 100%)";
-
-function MonogramaNF({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`relative grid place-items-center rounded-[28%] font-display font-extrabold text-[#040705] ${className}`}
-      style={{ backgroundColor: "#16db65", backgroundImage: GRADIENTE_MARCA }}
-    >
-      <span
-        className="leading-none tracking-tight"
-        style={{ fontSize: "clamp(1.9rem, 8vw, 3rem)" }}
-      >
-        NF
-      </span>
-      <span className="absolute inset-0 rounded-[28%] ring-1 ring-inset ring-white/25" />
-    </div>
-  );
-}
 
 export default function Bienvenida() {
   const router = useRouter();
@@ -73,9 +57,16 @@ export default function Bienvenida() {
           <div aria-hidden className="b-textura" />
 
           {/* Logo: "pop" al cargar y luego flota para siempre (anidados) */}
-          <div className="b-logo-pop relative z-10 mb-8 drop-shadow-[0_18px_35px_rgba(0,0,0,0.45)]">
+          <div className="b-logo-pop relative z-10 mb-6 w-[min(420px,82vw)] drop-shadow-[0_18px_35px_rgba(0,0,0,0.45)]">
             <div className="b-logo-flotar">
-              <MonogramaNF className="h-[min(150px,32vw)] w-[min(150px,32vw)]" />
+              <Image
+                src="/logo-no-fluke-store.png"
+                alt="No Fluke Store"
+                width={680}
+                height={567}
+                priority
+                className="h-auto w-full"
+              />
             </div>
           </div>
 

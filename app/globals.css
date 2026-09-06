@@ -1,14 +1,97 @@
 @import "tailwindcss";
 
-/*
- * Base neutra (blancos y grises fríos). El sistema de diseño completo
- * —paleta de acento, escala tipográfica, componentes— se define en la fase
- * de diseño (ver PROMPTS-V0.md). Por ahora solo lo mínimo.
- */
 @theme inline {
   --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+}
+
+/* Paleta y animaciones de marca ------------------------------------------- */
+@theme {
+  --color-verde: #16db65;
+  --color-verde-claro: #4dff9e;
+  --color-verde-oscuro: #0b8f43;
+  --color-fondo: #040705;
+
+  --animate-flotar: flotar 16s ease-in-out infinite;
+  --animate-flotar-lento: flotar 24s ease-in-out infinite reverse;
+  --animate-brillo: brillo 6s linear infinite;
+  --animate-marquee: marquee 26s linear infinite;
+}
+
+@keyframes flotar {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(3%, -7%) scale(1.12);
+  }
+}
+
+@keyframes brillo {
+  to {
+    background-position: 200% center;
+  }
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Entrada escalonada del hero ------------------------------------------------ */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+    filter: blur(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.aparecer {
+  opacity: 0;
+  animation: aparecer 0.9s cubic-bezier(0.22, 0.68, 0.28, 1) forwards;
+}
+.aparecer-1 {
+  animation-delay: 0.1s;
+}
+.aparecer-2 {
+  animation-delay: 0.22s;
+}
+.aparecer-3 {
+  animation-delay: 0.34s;
+}
+.aparecer-4 {
+  animation-delay: 0.46s;
+}
+.aparecer-5 {
+  animation-delay: 0.58s;
+}
+.aparecer-6 {
+  animation-delay: 0.72s;
 }
 
 body {
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aparecer {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    animation: none;
+  }
+  .animate-flotar,
+  .animate-flotar-lento,
+  .animate-brillo,
+  .animate-marquee {
+    animation: none !important;
+  }
 }

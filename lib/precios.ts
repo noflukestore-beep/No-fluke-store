@@ -55,6 +55,13 @@ export function formatearRD(valor: number): string {
   return `RD$${numero}`;
 }
 
+/** `342600` -> `"RD$342,600"`. Sin centavos, para cifras grandes de panel. */
+export function formatearRDCorto(valor: number): string {
+  return `RD$${new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 0,
+  }).format(valor)}`;
+}
+
 /** Porcentaje de descuento redondeado (para badges "-24%"). */
 export function porcentajeDescuento(precio: number, precioOferta: number): number {
   if (precio <= 0 || precioOferta >= precio) return 0;

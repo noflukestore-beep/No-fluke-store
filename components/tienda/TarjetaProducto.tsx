@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { porcentaje, type ProductoDemo } from "@/lib/tienda/demo";
-import { formatearRD } from "@/lib/precios";
+import { formatearRDCorto } from "@/lib/precios";
 
 export default function TarjetaProducto({
   producto,
@@ -51,25 +51,21 @@ export default function TarjetaProducto({
         </p>
 
         <div className="mt-auto pt-2">
-          {enOferta ? (
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-display text-base font-extrabold text-verde">
-                {formatearRD(producto.precioOferta!)}
-              </span>
-              <span className="text-xs text-white/35 line-through">
-                {formatearRD(producto.precio)}
-              </span>
-            </div>
-          ) : (
-            <span className="font-display text-base font-extrabold text-verde">
-              {formatearRD(producto.precio)}
+          <div className="flex flex-wrap items-baseline gap-x-1.5">
+            <span className="font-display text-sm font-extrabold text-verde sm:text-base">
+              {formatearRDCorto(enOferta ? producto.precioOferta! : producto.precio)}
             </span>
-          )}
+            {enOferta && (
+              <span className="text-[11px] text-white/35 line-through">
+                {formatearRDCorto(producto.precio)}
+              </span>
+            )}
+          </div>
 
           {producto.precioMayor != null && producto.cantidadMayor != null && (
             <p className="mt-0.5 text-[11px] text-white/45">
               Desde {producto.cantidadMayor} und:{" "}
-              {formatearRD(producto.precioMayor)}
+              {formatearRDCorto(producto.precioMayor)}
             </p>
           )}
         </div>

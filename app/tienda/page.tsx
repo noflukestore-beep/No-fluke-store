@@ -23,7 +23,7 @@ export default function TiendaInicio() {
         <p className="relative text-xs font-bold uppercase tracking-[0.3em] text-verde">
           Nueva colección
         </p>
-        <h1 className="relative mt-2 font-display text-4xl font-extrabold uppercase italic leading-[0.95] tracking-tight md:text-6xl">
+        <h1 className="relative mt-2 font-display text-[1.9rem] font-extrabold uppercase italic leading-[0.95] tracking-tight sm:text-5xl md:text-6xl">
           Built
           <br />
           Different
@@ -73,7 +73,7 @@ export default function TiendaInicio() {
         </div>
         <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {OFERTAS.map((p) => (
-            <div key={p.slug} className="w-40 shrink-0 sm:w-48">
+            <div key={p.slug} className="w-44 shrink-0 sm:w-52">
               <TarjetaProducto producto={p} />
             </div>
           ))}

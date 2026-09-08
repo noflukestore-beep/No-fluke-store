@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#040705",
+  themeColor: "#0a1310",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -32,9 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="es"
       className={`${geist.variable} ${syne.variable} h-full antialiased`}
     >
-      <body className="bg-[#040705] text-white min-h-dvh flex flex-col">
-        {children}
-      </body>
+      <body className="min-h-dvh flex flex-col">{children}</body>
     </html>
   );
 }

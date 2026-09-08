@@ -116,9 +116,9 @@ export function GraficoArea({
             strokeOpacity="0.4"
             strokeDasharray="3 3"
           />
-          <circle cx={dest.x} cy={dest.y} r="5" fill={VERDE} stroke="#0a0f0c" strokeWidth="2" />
+          <circle cx={dest.x} cy={dest.y} r="5" fill={VERDE} stroke="#0a1310" strokeWidth="2" />
           <g transform={`translate(${Math.min(dest.x, w - 70)}, ${Math.max(dest.y - 40, 4)})`}>
-            <rect width="66" height="30" rx="6" fill="#0a0f0c" stroke="#ffffff" strokeOpacity="0.12" />
+            <rect width="66" height="30" rx="6" fill="#0a1310" stroke="#ffffff" strokeOpacity="0.12" />
             <text x="33" y="19" textAnchor="middle" fill="#fff" fontSize="11" fontWeight="600">
               {puntoDestacado.texto}
             </text>

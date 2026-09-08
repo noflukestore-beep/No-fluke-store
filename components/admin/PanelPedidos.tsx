@@ -48,7 +48,7 @@ export default function PanelPedidos() {
               className={`-mb-px flex shrink-0 items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm font-semibold transition-colors ${
                 activo
                   ? "border-verde text-white"
-                  : "border-transparent text-white/45 hover:text-white/80"
+                  : "border-transparent text-humo hover:text-white/80"
               }`}
             >
               {etiqueta}
@@ -57,7 +57,7 @@ export default function PanelPedidos() {
                   className={`grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-bold ${
                     estado === "pendiente"
                       ? "bg-rose-500 text-white"
-                      : "bg-white/10 text-white/60"
+                      : "bg-white/10 text-humo"
                   }`}
                 >
                   {conteos[estado]}
@@ -69,7 +69,7 @@ export default function PanelPedidos() {
       </div>
 
       {lista.length === 0 ? (
-        <p className="py-16 text-center text-sm text-white/40">
+        <p className="py-16 text-center text-sm text-humo">
           No hay pedidos en este estado.
         </p>
       ) : (
@@ -85,13 +85,13 @@ export default function PanelPedidos() {
 
 function TarjetaPedido({ pedido }: { pedido: PedidoDemo }) {
   return (
-    <li className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+    <li className="rounded-xl border border-white/10 bg-tinta-suave p-4">
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="font-mono text-sm font-bold tracking-tight">
             {pedido.codigo}
           </p>
-          <p className="mt-0.5 text-xs text-white/40">{pedido.hace}</p>
+          <p className="mt-0.5 text-xs text-humo">{pedido.hace}</p>
         </div>
         <span
           className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${COLOR_ESTADO[pedido.estado]}`}
@@ -108,7 +108,7 @@ function TarjetaPedido({ pedido }: { pedido: PedidoDemo }) {
 
       <div className="mt-3">
         <p className="text-sm font-semibold">{pedido.clienteNombre}</p>
-        <p className="text-xs text-white/45">{pedido.clienteTelefono}</p>
+        <p className="text-xs text-humo">{pedido.clienteTelefono}</p>
       </div>
 
       <div className="mt-3 flex gap-1.5">
@@ -121,7 +121,7 @@ function TarjetaPedido({ pedido }: { pedido: PedidoDemo }) {
       </div>
 
       <div className="mt-3 flex items-end justify-between border-t border-white/5 pt-3">
-        <span className="text-xs text-white/45">
+        <span className="text-xs text-humo">
           {pedido.articulos} {pedido.articulos === 1 ? "artículo" : "artículos"}
         </span>
         <span className="font-display text-lg font-extrabold text-verde">
@@ -143,7 +143,7 @@ function TarjetaPedido({ pedido }: { pedido: PedidoDemo }) {
           href={`https://wa.me/${pedido.clienteTelefono}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="ml-auto grid h-9 w-9 place-items-center rounded-lg border border-white/10 text-white/50 transition-colors hover:bg-white/5"
+          className="ml-auto grid h-9 w-9 place-items-center rounded-lg border border-white/10 text-humo transition-colors hover:bg-white/5"
           aria-label="Abrir WhatsApp"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
@@ -167,7 +167,7 @@ function BotonAccion({
       type="button"
       className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
         tono === "verde"
-          ? "bg-verde text-[#04140c] hover:brightness-110"
+          ? "bg-verde text-tinta hover:brightness-110"
           : "border border-white/15 text-white/70 hover:bg-white/5"
       }`}
     >

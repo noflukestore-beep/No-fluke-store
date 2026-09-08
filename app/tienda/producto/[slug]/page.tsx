@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import Precio from "@/components/tienda/Precio";
 import { PRODUCTOS } from "@/lib/tienda/demo";
-import { formatearRD } from "@/lib/precios";
 
 export function generateStaticParams() {
   return PRODUCTOS.map((p) => ({ slug: p.slug }));
@@ -25,49 +25,40 @@ export default async function ProductoPagina({
   const producto = PRODUCTOS.find((p) => p.slug === slug);
   if (!producto) notFound();
 
-  const precio = producto.precioOferta ?? producto.precio;
-
   return (
-    <div className="grid gap-6 md:grid-cols-2">
-      <div className="aspect-square rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.07] to-transparent" />
-
-      <div>
-        <p className="text-xs uppercase tracking-wide text-white/40">
-          {producto.marca}
-        </p>
-        <h1 className="mt-1 font-display text-2xl font-extrabold tracking-tight md:text-3xl">
-          {producto.nombre}
-        </h1>
-
-        <div className="mt-3 flex items-baseline gap-2">
-          <span className="font-display text-3xl font-extrabold text-verde">
-            {formatearRD(precio)}
-          </span>
-          {producto.precioOferta != null && (
-            <span className="text-white/35 line-through">
-              {formatearRD(producto.precio)}
-            </span>
+    <div className="px-4 py-8 md:px-6">
+      <div className="grid gap-6 md:grid-cols-2 md:gap-10">
+        <div className="relative aspect-square overflow-hidden bg-lienzo">
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,#fff_0%,#f3f5f2_100%)]" />
+          {producto.agotado && (
+            <div className="absolute inset-0 grid place-items-center bg-lienzo/75">
+              <span className="border border-tinta px-3 py-1 text-xs font-semibold text-tinta">
+                Agotado
+              </span>
+            </div>
           )}
         </div>
 
-        {producto.precioMayor != null && producto.cantidadMayor != null && (
-          <p className="mt-2 inline-block rounded-lg border border-verde/30 bg-verde/10 px-3 py-1.5 text-sm font-semibold text-verde">
-            Desde {producto.cantidadMayor} unidades:{" "}
-            {formatearRD(producto.precioMayor)} c/u
-          </p>
-        )}
+        <div>
+          <p className="text-xs text-humo">{producto.marca}</p>
+          <h1 className="titular mt-1 text-2xl md:text-3xl">{producto.nombre}</h1>
 
-        <div className="mt-6 rounded-xl border border-dashed border-white/15 bg-white/[0.03] p-6 text-sm text-white/60">
-          El selector de talla/color, la cantidad y el botón “Agregar al
-          carrito” se construyen en las fases 2 y 4.
+          <div className="mt-4">
+            <Precio producto={producto} tamano="detalle" />
+          </div>
+
+          <div className="mt-8 border-t border-linea pt-6 text-sm leading-relaxed text-humo">
+            El selector de talla y color, la cantidad y el botón para agregar al
+            carrito se construyen en las fases 2 y 4.
+          </div>
+
+          <Link
+            href={`/tienda/categoria/${producto.categoriaSlug}`}
+            className="mt-6 inline-block text-sm text-humo underline decoration-linea underline-offset-4 hover:text-tinta hover:decoration-verde-hondo"
+          >
+            Ver más de {producto.categoria}
+          </Link>
         </div>
-
-        <Link
-          href="/tienda"
-          className="mt-4 inline-block text-sm font-semibold text-verde hover:underline"
-        >
-          ← Volver a la tienda
-        </Link>
       </div>
     </div>
   );

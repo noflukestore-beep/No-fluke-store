@@ -29,7 +29,7 @@ export default function Dashboard() {
           <h1 className="font-display text-2xl font-extrabold tracking-tight md:text-3xl">
             Dashboard
           </h1>
-          <p className="mt-0.5 text-sm text-white/50">
+          <p className="mt-0.5 text-sm text-humo">
             Esto es lo que está pasando en tu tienda.
           </p>
         </div>
@@ -47,7 +47,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {KPIS.map((kpi) => (
           <Panel key={kpi.etiqueta} className="p-4">
-            <p className="text-xs text-white/50">{kpi.etiqueta}</p>
+            <p className="text-xs text-humo">{kpi.etiqueta}</p>
             <p className="mt-1 truncate text-xl font-bold tracking-tight">
               {kpi.valor}
             </p>
@@ -58,7 +58,7 @@ export default function Dashboard() {
               <span className="font-semibold text-verde">
                 ▲ {kpi.delta.toFixed(1)}%
               </span>
-              <span className="text-white/40">vs mes anterior</span>
+              <span className="text-humo">vs mes anterior</span>
             </p>
           </Panel>
         ))}
@@ -75,7 +75,7 @@ export default function Dashboard() {
               <p className="mt-1 font-display text-2xl font-extrabold tracking-tight">
                 {formatearRDCorto(342600)}
               </p>
-              <p className="text-xs text-white/40">últimos 30 días</p>
+              <p className="text-xs text-humo">últimos 30 días</p>
             </div>
             <span className="rounded-md bg-verde/15 px-2 py-1 text-xs font-semibold text-verde">
               ▲ 18.2%
@@ -105,13 +105,13 @@ export default function Dashboard() {
                 <span className="h-9 w-9 shrink-0 rounded-lg border border-white/10 bg-white/5" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{p.nombre}</p>
-                  <p className="text-xs text-white/40">{p.categoria}</p>
+                  <p className="text-xs text-humo">{p.categoria}</p>
                 </div>
                 <div className="shrink-0 text-right">
                   <p className="text-sm font-semibold">
                     {formatearRDCorto(p.ingreso)}
                   </p>
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-humo">
                     {p.vendidos} uds ·{" "}
                     <span className="text-verde">▲{p.delta}%</span>
                   </p>
@@ -140,11 +140,11 @@ export default function Dashboard() {
                   className="h-2.5 w-2.5 rounded-full"
                   style={{ backgroundColor: s.color }}
                 />
-                <span className="flex-1 text-white/60">{s.etiqueta}</span>
+                <span className="flex-1 text-humo">{s.etiqueta}</span>
                 <span className="font-semibold">
                   {s.valor.toLocaleString("es-DO")}
                 </span>
-                <span className="w-8 text-right text-white/40">{s.pct}%</span>
+                <span className="w-8 text-right text-humo">{s.pct}%</span>
               </li>
             ))}
           </ul>
@@ -166,12 +166,12 @@ export default function Dashboard() {
         <h3 className="relative mt-1 font-display text-3xl font-extrabold uppercase italic tracking-tight md:text-4xl">
           Built Different
         </h3>
-        <p className="relative mt-1 text-sm text-white/60">
+        <p className="relative mt-1 text-sm text-humo">
           Streetwear para los que se mueven distinto.
         </p>
         <Link
           href="/tienda"
-          className="relative mt-4 inline-flex items-center gap-2 rounded-full bg-verde px-5 py-2.5 text-sm font-bold text-[#04140c] transition-transform hover:scale-105"
+          className="relative mt-4 inline-flex items-center gap-2 rounded-full bg-verde px-5 py-2.5 text-sm font-bold text-tinta transition-transform hover:scale-105"
         >
           Ir a la tienda →
         </Link>
@@ -191,7 +191,7 @@ export default function Dashboard() {
           <div className="mt-3 overflow-x-auto">
             <table className="w-full min-w-[440px] text-sm">
               <thead>
-                <tr className="text-left text-xs text-white/40">
+                <tr className="text-left text-xs text-humo">
                   <th className="pb-2 font-medium">Pedido</th>
                   <th className="pb-2 font-medium">Cliente</th>
                   <th className="pb-2 font-medium">Total</th>
@@ -216,7 +216,7 @@ export default function Dashboard() {
                         {p.estado}
                       </span>
                     </td>
-                    <td className="py-2.5 text-white/40">{p.fecha}</td>
+                    <td className="py-2.5 text-humo">{p.fecha}</td>
                   </tr>
                 ))}
               </tbody>
@@ -245,7 +245,7 @@ export default function Dashboard() {
                   <span className="text-sm font-bold text-verde">
                     {formatearRD(p.precio)}
                   </span>
-                  <span className="text-xs text-white/40">
+                  <span className="text-xs text-humo">
                     ★ {p.rating} ({p.reseñas})
                   </span>
                 </div>
@@ -267,7 +267,7 @@ function Panel({
 }) {
   return (
     <section
-      className={`rounded-xl border border-white/10 bg-white/[0.03] ${className}`}
+      className={`rounded-xl border border-white/10 bg-tinta-suave ${className}`}
     >
       {children}
     </section>

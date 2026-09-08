@@ -8,26 +8,58 @@ import { CATEGORIAS } from "@/lib/tienda/demo";
 
 const ARTICULOS_CARRITO = 2; // TODO Fase 4: store de Zustand
 
-function IconoBusqueda({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2">
+/* Iconos SVG de trazo consistente ---------------------------------------- */
+const trazo = {
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.7,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
+const Ico = {
+  inicio: (c = "") => (
+    <svg viewBox="0 0 24 24" className={c} {...trazo}>
+      <path d="M4 11 12 4l8 7" />
+      <path d="M6 10v9h12v-9" />
+    </svg>
+  ),
+  grid: (c = "") => (
+    <svg viewBox="0 0 24 24" className={c} {...trazo}>
+      <rect x="4" y="4" width="7" height="7" />
+      <rect x="13" y="4" width="7" height="7" />
+      <rect x="4" y="13" width="7" height="7" />
+      <rect x="13" y="13" width="7" height="7" />
+    </svg>
+  ),
+  etiqueta: (c = "") => (
+    <svg viewBox="0 0 24 24" className={c} {...trazo}>
+      <path d="M4 12.6V5a1 1 0 0 1 1-1h7.6a1 1 0 0 1 .7.3l6.4 6.4a1 1 0 0 1 0 1.4l-7.6 7.6a1 1 0 0 1-1.4 0L4.3 13.3a1 1 0 0 1-.3-.7Z" />
+      <circle cx="8.6" cy="8.6" r="1.1" />
+    </svg>
+  ),
+  buscar: (c = "") => (
+    <svg viewBox="0 0 24 24" className={c} {...trazo}>
       <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" strokeLinecap="round" />
+      <path d="m20 20-3.5-3.5" />
     </svg>
-  );
-}
-
-function IconoCarrito({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 6h15l-1.5 9h-12L5 3H2M6 20a1 1 0 1 0 0 .01M18 20a1 1 0 1 0 0 .01" />
+  ),
+  carrito: (c = "") => (
+    <svg viewBox="0 0 24 24" className={c} {...trazo}>
+      <path d="M4 5h2l2.2 10.2a1.5 1.5 0 0 0 1.5 1.2h7.6a1.5 1.5 0 0 0 1.5-1.2L20.5 8H6.4" />
+      <circle cx="10" cy="20" r="1.1" />
+      <circle cx="18" cy="20" r="1.1" />
     </svg>
-  );
-}
+  ),
+  menu: (c = "") => (
+    <svg viewBox="0 0 24 24" className={c} {...trazo}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  ),
+};
 
 /* --------------------------------------------------------------------------
-   Encabezado: el banner "Built Different" fijo arriba, a lo ancho.
-   Encima van el logo (esquina), el buscador y el carrito.
+   Encabezado: banner "Built Different" fijo, compacto, con el logo animado
+   en una esquina, el buscador destacado y el carrito.
 -------------------------------------------------------------------------- */
 function EncabezadoBanner({
   onMenu,
@@ -37,8 +69,7 @@ function EncabezadoBanner({
   articulos: number;
 }) {
   return (
-    <header className="fixed inset-x-0 top-0 z-50 h-40 border-b-2 border-verde/40 bg-black sm:h-44 lg:h-52">
-      {/* Banner */}
+    <header className="fixed inset-x-0 top-0 z-50 h-24 border-b-2 border-verde bg-black sm:h-28">
       <Image
         src="/banner-built-different.png"
         alt="No Fluke Store — Built Different"
@@ -47,151 +78,142 @@ function EncabezadoBanner({
         sizes="100vw"
         className="object-cover object-center"
       />
-      {/* Velos: izquierda para el logo, abajo para el buscador */}
       <div
         aria-hidden
-        className="absolute inset-y-0 left-0 w-64 bg-gradient-to-r from-black via-black/75 to-transparent"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/85 to-transparent"
-      />
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/50 to-transparent"
+        className="absolute inset-0 bg-gradient-to-r from-black via-black/45 to-black/70"
       />
 
-      {/* Logo (esquina, resaltado) */}
-      <Link
-        href="/tienda"
-        aria-label="Inicio"
-        className="absolute left-3 top-3 z-10 rounded-xl bg-black/80 p-1.5 ring-2 ring-verde shadow-[0_0_22px_-2px_var(--color-verde)] md:left-5 md:top-4"
-      >
-        <Image
-          src="/logo-no-fluke-store.png"
-          alt="No Fluke Store"
-          width={170}
-          height={142}
-          priority
-          className="h-11 w-auto sm:h-12 lg:h-14"
-        />
-      </Link>
-
-      {/* Carrito (esquina) */}
-      <Link
-        href="/tienda/carrito"
-        aria-label={`Carrito, ${articulos} artículos`}
-        className="absolute right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl bg-black/70 text-white ring-1 ring-white/25 md:right-5 md:top-4"
-      >
-        <IconoCarrito className="h-5 w-5" />
-        {articulos > 0 && (
-          <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-verde px-1 text-[11px] font-bold text-[#04140c]">
-            {articulos}
+      <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center gap-3 px-3 sm:px-5">
+        {/* Logo animado (pop al cargar + flotación, como en la bienvenida) */}
+        <Link
+          href="/tienda"
+          aria-label="Inicio"
+          className="b-logo-pop shrink-0 drop-shadow-[0_0_18px_rgba(22,219,101,0.55)]"
+        >
+          <span className="b-logo-flotar block">
+            <Image
+              src="/logo-no-fluke-store.png"
+              alt="No Fluke Store"
+              width={200}
+              height={167}
+              priority
+              className="h-14 w-auto sm:h-16"
+            />
           </span>
-        )}
-      </Link>
+        </Link>
 
-      {/* Menú (móvil) */}
-      <button
-        type="button"
-        onClick={onMenu}
-        aria-label="Menú"
-        className="absolute right-16 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl bg-black/70 text-white ring-1 ring-white/25 md:right-20 md:top-4 lg:hidden"
-      >
-        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-          <path d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
+        {/* Buscador destacado */}
+        <div className="relative mx-auto w-full max-w-md min-w-0">
+          {Ico.buscar(
+            "pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-neutral-500",
+          )}
+          <input
+            type="search"
+            placeholder="Buscar perfumes, ropa, tenis…"
+            className="w-full rounded-full border-2 border-verde/60 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-neutral-900 shadow-[0_0_24px_-6px_rgba(22,219,101,0.7)] placeholder:text-neutral-400 focus:border-verde focus:outline-none"
+          />
+        </div>
 
-      {/* Buscador */}
-      <div className="absolute inset-x-3 bottom-3 z-10 md:inset-x-6 lg:left-1/2 lg:right-auto lg:w-[520px] lg:-translate-x-1/2">
-        <IconoBusqueda className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
-        <input
-          type="search"
-          placeholder="Buscar perfumes, ropa, tenis…"
-          className="w-full rounded-full border border-white/30 bg-black/80 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/60 focus:border-verde focus:outline-none"
-        />
+        {/* Menú (móvil) */}
+        <button
+          type="button"
+          onClick={onMenu}
+          aria-label="Menú"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white/10 text-white ring-1 ring-white/20 backdrop-blur transition-colors hover:bg-white/20 lg:hidden"
+        >
+          {Ico.menu("h-5 w-5")}
+        </button>
+
+        {/* Carrito */}
+        <Link
+          href="/tienda/carrito"
+          aria-label={`Carrito, ${articulos} artículos`}
+          className="relative grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white/10 text-white ring-1 ring-white/20 backdrop-blur transition-colors hover:bg-white/20"
+        >
+          {Ico.carrito("h-5 w-5")}
+          {articulos > 0 && (
+            <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-verde px-1 text-[11px] font-bold text-[#04140c]">
+              {articulos}
+            </span>
+          )}
+        </Link>
       </div>
     </header>
   );
 }
 
+/* Navegación de categorías (sidebar + drawer) --------------------------- */
 function NavCategorias({ cerrar }: { cerrar?: () => void }) {
   const ruta = usePathname();
+
+  const item = (
+    href: string,
+    etiqueta: string,
+    icono: React.ReactNode,
+    exacto = true,
+  ) => {
+    const activo = exacto ? ruta === href : ruta.startsWith(href);
+    return (
+      <Link
+        key={href}
+        href={href}
+        onClick={cerrar}
+        className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
+          activo
+            ? "bg-white/[0.06] font-semibold text-white before:absolute before:inset-y-1.5 before:left-0 before:w-[3px] before:rounded-full before:bg-verde"
+            : "font-medium text-white/55 hover:bg-white/[0.04] hover:text-white"
+        }`}
+      >
+        <span className={activo ? "text-verde" : "text-white/40"}>{icono}</span>
+        {etiqueta}
+      </Link>
+    );
+  };
+
   return (
     <div className="flex h-full flex-col">
       {cerrar && (
-        <Link
-          href="/tienda"
-          onClick={cerrar}
-          className="flex items-center px-5 py-4"
-        >
+        <div className="flex items-center gap-2 border-b border-white/10 px-5 py-4">
           <Image
             src="/logo-no-fluke-store.png"
             alt="No Fluke Store"
             width={120}
             height={100}
-            className="h-10 w-auto"
+            className="h-9 w-auto"
           />
-        </Link>
+        </div>
       )}
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-3">
-        <Link
-          href="/tienda"
-          onClick={cerrar}
-          className={`block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
-            ruta === "/tienda"
-              ? "bg-verde text-[#04140c]"
-              : "text-white/70 hover:bg-white/5 hover:text-white"
-          }`}
-        >
-          Inicio
-        </Link>
+      <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
+        {item("/tienda", "Inicio", Ico.inicio("h-[18px] w-[18px]"))}
 
-        <p className="px-3 pb-1 pt-4 text-[11px] font-bold uppercase tracking-[0.2em] text-white/35">
-          Categorías
+        <p className="px-3 pb-1.5 pt-5 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/30">
+          Catálogo
         </p>
-        {CATEGORIAS.map((c) => {
-          const href = `/tienda/categoria/${c.slug}`;
-          const activo = ruta === href;
-          return (
-            <Link
-              key={c.slug}
-              href={href}
-              onClick={cerrar}
-              className={`block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                activo
-                  ? "bg-white/10 text-white"
-                  : "text-white/60 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              {c.nombre}
-            </Link>
-          );
-        })}
+        {CATEGORIAS.map((c) =>
+          item(
+            `/tienda/categoria/${c.slug}`,
+            c.nombre,
+            <span className="h-[18px] w-[18px] rounded-sm border border-current" />,
+          ),
+        )}
 
-        <Link
-          href="/tienda/ofertas"
-          onClick={cerrar}
-          className="mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-verde hover:bg-white/5"
-        >
-          🔥 Ofertas
-        </Link>
+        <div className="pt-4">
+          {item("/tienda/ofertas", "Ofertas", Ico.etiqueta("h-[18px] w-[18px]"), false)}
+        </div>
       </nav>
 
       <div className="border-t border-white/10 px-5 py-4">
-        <p className="font-display text-sm font-extrabold uppercase leading-tight tracking-tight text-white/80">
-          Más que ropa
-          <br />
-          <span className="text-verde">es estilo</span>
+        <p className="text-sm font-semibold text-white">El estilo no es suerte.</p>
+        <p className="mt-1 text-[11px] leading-relaxed text-white/40">
+          Pides por WhatsApp y coordinamos la entrega en todo el país.
         </p>
-        <p className="mt-1 text-[11px] text-white/40">El estilo no es suerte.</p>
       </div>
     </div>
   );
 }
 
+/* Marco ----------------------------------------------------------------- */
 export default function MarcoTienda({
   children,
 }: {
@@ -200,9 +222,9 @@ export default function MarcoTienda({
   const [abierto, setAbierto] = useState(false);
   const ruta = usePathname();
 
-  const itemsNav = [
-    { href: "/tienda", etiqueta: "Inicio", icono: "🏠" },
-    { href: "/tienda/ofertas", etiqueta: "Ofertas", icono: "🔥" },
+  const navInferior = [
+    { href: "/tienda", etiqueta: "Inicio", icono: Ico.inicio },
+    { href: "/tienda/ofertas", etiqueta: "Ofertas", icono: Ico.etiqueta },
   ];
 
   return (
@@ -219,16 +241,16 @@ export default function MarcoTienda({
             className="absolute inset-0 bg-black/60"
             onClick={() => setAbierto(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-64 border-r border-white/10 bg-[#070c09]">
+          <aside className="absolute left-0 top-0 h-full w-64 border-r border-white/10 bg-[#0b100d]">
             <NavCategorias cerrar={() => setAbierto(false)} />
           </aside>
         </div>
       )}
 
-      <div className="flex pt-40 sm:pt-44 lg:pt-52">
+      <div className="flex pt-24 sm:pt-28">
         {/* Sidebar escritorio */}
-        <aside className="hidden w-56 shrink-0 border-r border-white/10 bg-[#070c09] lg:block">
-          <div className="sticky top-52 h-[calc(100dvh-13rem)] overflow-y-auto">
+        <aside className="hidden w-60 shrink-0 border-r border-white/10 bg-[#0b100d] lg:block">
+          <div className="sticky top-28 h-[calc(100dvh-7rem)] overflow-y-auto">
             <NavCategorias />
           </div>
         </aside>
@@ -239,40 +261,40 @@ export default function MarcoTienda({
       </div>
 
       {/* Navegación inferior móvil */}
-      <nav className="fixed bottom-0 left-0 z-40 flex w-full items-stretch border-t border-white/10 bg-[#070c09] lg:hidden">
-        {itemsNav.map((item) => {
-          const activo = ruta === item.href;
+      <nav className="fixed bottom-0 left-0 z-40 flex w-full items-stretch border-t border-white/10 bg-[#0b100d] lg:hidden">
+        {navInferior.map(({ href, etiqueta, icono }) => {
+          const activo = ruta === href;
           return (
             <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium ${
-                activo ? "text-verde" : "text-white/55"
+              key={href}
+              href={href}
+              className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium ${
+                activo ? "text-verde" : "text-white/50"
               }`}
             >
-              <span className="text-base">{item.icono}</span>
-              {item.etiqueta}
+              {icono("h-5 w-5")}
+              {etiqueta}
             </Link>
           );
         })}
         <button
           type="button"
           onClick={() => setAbierto(true)}
-          className="flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium text-white/55"
+          className="flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-white/50"
         >
-          <span className="text-base">▤</span>
+          {Ico.grid("h-5 w-5")}
           Categorías
         </button>
         <Link
           href="/tienda/carrito"
-          className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium ${
-            ruta === "/tienda/carrito" ? "text-verde" : "text-white/55"
+          className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium ${
+            ruta === "/tienda/carrito" ? "text-verde" : "text-white/50"
           }`}
         >
-          <span className="relative text-base">
-            🛒
+          <span className="relative">
+            {Ico.carrito("h-5 w-5")}
             {ARTICULOS_CARRITO > 0 && (
-              <span className="absolute -right-2 -top-1 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-verde px-1 text-[9px] font-bold text-[#04140c]">
+              <span className="absolute -right-2 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-verde px-1 text-[9px] font-bold text-[#04140c]">
                 {ARTICULOS_CARRITO}
               </span>
             )}

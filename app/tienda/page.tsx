@@ -7,38 +7,23 @@ export const metadata = { title: "Tienda" };
 export default function TiendaInicio() {
   return (
     <div className="space-y-8">
-      <span className="inline-block rounded-lg border border-amber-400/30 bg-amber-400/10 px-2.5 py-1 text-xs font-semibold text-amber-300">
-        Datos de ejemplo · el catálogo real llega en la Fase 2
-      </span>
-
-      {/* Hero */}
-      <section
-        className="relative overflow-hidden rounded-2xl border border-verde/20 p-6 md:p-10"
-        style={{
-          backgroundImage:
-            "linear-gradient(115deg,#06120b 0%,#0f3019 55%,#0a1f12 100%)",
-        }}
-      >
-        <div aria-hidden className="b-textura opacity-20" />
-        <p className="relative text-xs font-bold uppercase tracking-[0.3em] text-verde">
-          Nueva colección
-        </p>
-        <h1 className="relative mt-2 font-display text-[1.9rem] font-extrabold uppercase italic leading-[0.95] tracking-tight sm:text-5xl md:text-6xl">
-          Built
-          <br />
-          Different
-        </h1>
-        <p className="relative mt-3 max-w-md text-sm text-white/60 md:text-base">
+      {/* Intro compacta (el hero visual ahora es el banner del encabezado) */}
+      <section className="flex flex-wrap items-center justify-between gap-3">
+        <p className="max-w-md text-sm text-white/60">
           Perfumes, ropa, t-shirts y tenis para los que se mueven distinto.
           Pide por WhatsApp, entrega en todo el país.
         </p>
         <Link
           href="/tienda/ofertas"
-          className="relative mt-5 inline-flex items-center gap-2 rounded-full bg-verde px-6 py-3 text-sm font-extrabold uppercase tracking-wide text-[#04140c] transition-transform hover:scale-105"
+          className="inline-flex items-center gap-2 rounded-full bg-verde px-5 py-2.5 text-sm font-extrabold uppercase tracking-wide text-[#04140c] transition-transform hover:scale-105"
         >
           Ver ofertas →
         </Link>
       </section>
+
+      <span className="inline-block rounded-lg border border-amber-400/30 bg-amber-400/10 px-2.5 py-1 text-xs font-semibold text-amber-300">
+        Datos de ejemplo · el catálogo real llega en la Fase 2
+      </span>
 
       {/* Categorías */}
       <section>

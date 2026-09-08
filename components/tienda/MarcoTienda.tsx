@@ -25,22 +25,118 @@ function IconoCarrito({ className = "" }: { className?: string }) {
   );
 }
 
+/* --------------------------------------------------------------------------
+   Encabezado: el banner "Built Different" fijo arriba, a lo ancho.
+   Encima van el logo (esquina), el buscador y el carrito.
+-------------------------------------------------------------------------- */
+function EncabezadoBanner({
+  onMenu,
+  articulos,
+}: {
+  onMenu: () => void;
+  articulos: number;
+}) {
+  return (
+    <header className="fixed inset-x-0 top-0 z-50 h-40 border-b-2 border-verde/40 bg-black sm:h-44 lg:h-52">
+      {/* Banner */}
+      <Image
+        src="/banner-built-different.png"
+        alt="No Fluke Store — Built Different"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center"
+      />
+      {/* Velos: izquierda para el logo, abajo para el buscador */}
+      <div
+        aria-hidden
+        className="absolute inset-y-0 left-0 w-64 bg-gradient-to-r from-black via-black/75 to-transparent"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/85 to-transparent"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/50 to-transparent"
+      />
+
+      {/* Logo (esquina, resaltado) */}
+      <Link
+        href="/tienda"
+        aria-label="Inicio"
+        className="absolute left-3 top-3 z-10 rounded-xl bg-black/80 p-1.5 ring-2 ring-verde shadow-[0_0_22px_-2px_var(--color-verde)] md:left-5 md:top-4"
+      >
+        <Image
+          src="/logo-no-fluke-store.png"
+          alt="No Fluke Store"
+          width={170}
+          height={142}
+          priority
+          className="h-11 w-auto sm:h-12 lg:h-14"
+        />
+      </Link>
+
+      {/* Carrito (esquina) */}
+      <Link
+        href="/tienda/carrito"
+        aria-label={`Carrito, ${articulos} artículos`}
+        className="absolute right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl bg-black/70 text-white ring-1 ring-white/25 md:right-5 md:top-4"
+      >
+        <IconoCarrito className="h-5 w-5" />
+        {articulos > 0 && (
+          <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-verde px-1 text-[11px] font-bold text-[#04140c]">
+            {articulos}
+          </span>
+        )}
+      </Link>
+
+      {/* Menú (móvil) */}
+      <button
+        type="button"
+        onClick={onMenu}
+        aria-label="Menú"
+        className="absolute right-16 top-3 z-10 grid h-11 w-11 place-items-center rounded-xl bg-black/70 text-white ring-1 ring-white/25 md:right-20 md:top-4 lg:hidden"
+      >
+        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* Buscador */}
+      <div className="absolute inset-x-3 bottom-3 z-10 md:inset-x-6 lg:left-1/2 lg:right-auto lg:w-[520px] lg:-translate-x-1/2">
+        <IconoBusqueda className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
+        <input
+          type="search"
+          placeholder="Buscar perfumes, ropa, tenis…"
+          className="w-full rounded-full border border-white/30 bg-black/80 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-white/60 focus:border-verde focus:outline-none"
+        />
+      </div>
+    </header>
+  );
+}
+
 function NavCategorias({ cerrar }: { cerrar?: () => void }) {
   const ruta = usePathname();
   return (
     <div className="flex h-full flex-col">
-      <Link href="/tienda" onClick={cerrar} className="flex items-center px-5 py-4">
-        <Image
-          src="/logo-no-fluke-store.png"
-          alt="No Fluke Store"
-          width={120}
-          height={100}
-          className="h-11 w-auto"
-          priority
-        />
-      </Link>
+      {cerrar && (
+        <Link
+          href="/tienda"
+          onClick={cerrar}
+          className="flex items-center px-5 py-4"
+        >
+          <Image
+            src="/logo-no-fluke-store.png"
+            alt="No Fluke Store"
+            width={120}
+            height={100}
+            className="h-10 w-auto"
+          />
+        </Link>
+      )}
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-3">
         <Link
           href="/tienda"
           onClick={cerrar}
@@ -90,9 +186,7 @@ function NavCategorias({ cerrar }: { cerrar?: () => void }) {
           <br />
           <span className="text-verde">es estilo</span>
         </p>
-        <p className="mt-1 text-[11px] text-white/40">
-          El estilo no es suerte.
-        </p>
+        <p className="mt-1 text-[11px] text-white/40">El estilo no es suerte.</p>
       </div>
     </div>
   );
@@ -112,17 +206,15 @@ export default function MarcoTienda({
   ];
 
   return (
-    <div className="flex min-h-dvh bg-[#0a0f0c] text-white">
-      {/* Sidebar escritorio */}
-      <aside className="hidden w-56 shrink-0 border-r border-white/10 bg-[#070c09] lg:block">
-        <div className="sticky top-0 h-dvh">
-          <NavCategorias />
-        </div>
-      </aside>
+    <div className="min-h-dvh bg-[#0a0f0c] text-white">
+      <EncabezadoBanner
+        onMenu={() => setAbierto(true)}
+        articulos={ARTICULOS_CARRITO}
+      />
 
       {/* Drawer móvil */}
       {abierto && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-[60] lg:hidden">
           <div
             className="absolute inset-0 bg-black/60"
             onClick={() => setAbierto(false)}
@@ -133,55 +225,17 @@ export default function MarcoTienda({
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col pb-16 lg:pb-0">
-        {/* Barra superior */}
-        <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-white/10 bg-[#0a0f0c]/90 px-4 backdrop-blur md:px-6">
-          <button
-            type="button"
-            onClick={() => setAbierto(true)}
-            className="grid h-9 w-9 place-items-center rounded-lg text-white/70 hover:bg-white/5 lg:hidden"
-            aria-label="Menú"
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-
-          <Link href="/tienda" className="lg:hidden">
-            <Image
-              src="/logo-no-fluke-store.png"
-              alt="No Fluke Store"
-              width={90}
-              height={75}
-              className="h-8 w-auto"
-              priority
-            />
-          </Link>
-
-          <div className="relative hidden flex-1 sm:block md:max-w-md">
-            <IconoBusqueda className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
-            <input
-              type="search"
-              placeholder="Buscar perfumes, ropa, tenis…"
-              className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/40 focus:border-verde/50 focus:outline-none"
-            />
+      <div className="flex pt-40 sm:pt-44 lg:pt-52">
+        {/* Sidebar escritorio */}
+        <aside className="hidden w-56 shrink-0 border-r border-white/10 bg-[#070c09] lg:block">
+          <div className="sticky top-52 h-[calc(100dvh-13rem)] overflow-y-auto">
+            <NavCategorias />
           </div>
+        </aside>
 
-          <Link
-            href="/tienda/carrito"
-            className="relative ml-auto grid h-10 w-10 place-items-center rounded-lg text-white/80 hover:bg-white/5"
-            aria-label="Carrito"
-          >
-            <IconoCarrito className="h-5 w-5" />
-            {ARTICULOS_CARRITO > 0 && (
-              <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-verde px-1 text-[10px] font-bold text-[#04140c]">
-                {ARTICULOS_CARRITO}
-              </span>
-            )}
-          </Link>
-        </header>
-
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+        <div className="flex min-w-0 flex-1 flex-col pb-16 lg:pb-0">
+          <main className="flex-1 p-4 md:p-6">{children}</main>
+        </div>
       </div>
 
       {/* Navegación inferior móvil */}

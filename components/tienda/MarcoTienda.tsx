@@ -5,17 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { CATEGORIAS } from "@/lib/tienda/demo";
+import Buscador from "@/components/tienda/Buscador";
 
 const ARTICULOS_CARRITO = 2; // TODO Fase 4: store de Zustand
-
-function IconoBusqueda({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 function IconoCarrito({ className = "" }: { className?: string }) {
   return (
@@ -70,15 +62,8 @@ function EncabezadoBanner({
           </span>
         </Link>
 
-        {/* Buscador destacado */}
-        <div className="relative mx-auto w-full max-w-md min-w-0">
-          <IconoBusqueda className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-neutral-500" />
-          <input
-            type="search"
-            placeholder="Buscar perfumes, ropa, tenis…"
-            className="w-full rounded-full border-2 border-verde/60 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-neutral-900 shadow-[0_0_24px_-6px_rgba(22,219,101,0.7)] placeholder:text-neutral-400 focus:border-verde focus:outline-none"
-          />
-        </div>
+        {/* Buscador con selector de categoría */}
+        <Buscador />
 
         {/* Menú (móvil) */}
         <button

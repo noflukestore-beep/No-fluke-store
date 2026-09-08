@@ -7,24 +7,6 @@ export const metadata = { title: "Tienda" };
 export default function TiendaInicio() {
   return (
     <div className="space-y-8">
-      {/* Intro compacta (el hero visual ahora es el banner del encabezado) */}
-      <section className="flex flex-wrap items-center justify-between gap-3">
-        <p className="max-w-md text-sm text-white/60">
-          Perfumes, ropa, t-shirts y tenis para los que se mueven distinto.
-          Pide por WhatsApp, entrega en todo el país.
-        </p>
-        <Link
-          href="/tienda/ofertas"
-          className="inline-flex items-center gap-2 rounded-full bg-verde px-5 py-2.5 text-sm font-extrabold uppercase tracking-wide text-[#04140c] transition-transform hover:scale-105"
-        >
-          Ver ofertas →
-        </Link>
-      </section>
-
-      <span className="inline-block rounded-lg border border-amber-400/30 bg-amber-400/10 px-2.5 py-1 text-xs font-semibold text-amber-300">
-        Datos de ejemplo · el catálogo real llega en la Fase 2
-      </span>
-
       {/* Categorías */}
       <section>
         <h2 className="mb-3 font-display text-lg font-extrabold uppercase tracking-tight">

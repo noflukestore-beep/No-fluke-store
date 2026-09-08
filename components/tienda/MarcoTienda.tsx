@@ -8,58 +8,26 @@ import { CATEGORIAS } from "@/lib/tienda/demo";
 
 const ARTICULOS_CARRITO = 2; // TODO Fase 4: store de Zustand
 
-/* Iconos SVG de trazo consistente ---------------------------------------- */
-const trazo = {
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 1.7,
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-};
-const Ico = {
-  inicio: (c = "") => (
-    <svg viewBox="0 0 24 24" className={c} {...trazo}>
-      <path d="M4 11 12 4l8 7" />
-      <path d="M6 10v9h12v-9" />
-    </svg>
-  ),
-  grid: (c = "") => (
-    <svg viewBox="0 0 24 24" className={c} {...trazo}>
-      <rect x="4" y="4" width="7" height="7" />
-      <rect x="13" y="4" width="7" height="7" />
-      <rect x="4" y="13" width="7" height="7" />
-      <rect x="13" y="13" width="7" height="7" />
-    </svg>
-  ),
-  etiqueta: (c = "") => (
-    <svg viewBox="0 0 24 24" className={c} {...trazo}>
-      <path d="M4 12.6V5a1 1 0 0 1 1-1h7.6a1 1 0 0 1 .7.3l6.4 6.4a1 1 0 0 1 0 1.4l-7.6 7.6a1 1 0 0 1-1.4 0L4.3 13.3a1 1 0 0 1-.3-.7Z" />
-      <circle cx="8.6" cy="8.6" r="1.1" />
-    </svg>
-  ),
-  buscar: (c = "") => (
-    <svg viewBox="0 0 24 24" className={c} {...trazo}>
+function IconoBusqueda({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2">
       <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
+      <path d="m20 20-3.5-3.5" strokeLinecap="round" />
     </svg>
-  ),
-  carrito: (c = "") => (
-    <svg viewBox="0 0 24 24" className={c} {...trazo}>
-      <path d="M4 5h2l2.2 10.2a1.5 1.5 0 0 0 1.5 1.2h7.6a1.5 1.5 0 0 0 1.5-1.2L20.5 8H6.4" />
-      <circle cx="10" cy="20" r="1.1" />
-      <circle cx="18" cy="20" r="1.1" />
+  );
+}
+
+function IconoCarrito({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 6h15l-1.5 9h-12L5 3H2M6 20a1 1 0 1 0 0 .01M18 20a1 1 0 1 0 0 .01" />
     </svg>
-  ),
-  menu: (c = "") => (
-    <svg viewBox="0 0 24 24" className={c} {...trazo}>
-      <path d="M4 7h16M4 12h16M4 17h16" />
-    </svg>
-  ),
-};
+  );
+}
 
 /* --------------------------------------------------------------------------
-   Encabezado: banner "Built Different" fijo, compacto, con el logo animado
-   en una esquina, el buscador destacado y el carrito.
+   Encabezado: banner "Built Different" fijo, compacto. Encima: el logo
+   animado en la esquina, el buscador destacado y el carrito.
 -------------------------------------------------------------------------- */
 function EncabezadoBanner({
   onMenu,
@@ -104,9 +72,7 @@ function EncabezadoBanner({
 
         {/* Buscador destacado */}
         <div className="relative mx-auto w-full max-w-md min-w-0">
-          {Ico.buscar(
-            "pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-neutral-500",
-          )}
+          <IconoBusqueda className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-neutral-500" />
           <input
             type="search"
             placeholder="Buscar perfumes, ropa, tenis…"
@@ -121,7 +87,9 @@ function EncabezadoBanner({
           aria-label="Menú"
           className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white/10 text-white ring-1 ring-white/20 backdrop-blur transition-colors hover:bg-white/20 lg:hidden"
         >
-          {Ico.menu("h-5 w-5")}
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
         </button>
 
         {/* Carrito */}
@@ -130,7 +98,7 @@ function EncabezadoBanner({
           aria-label={`Carrito, ${articulos} artículos`}
           className="relative grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white/10 text-white ring-1 ring-white/20 backdrop-blur transition-colors hover:bg-white/20"
         >
-          {Ico.carrito("h-5 w-5")}
+          <IconoCarrito className="h-5 w-5" />
           {articulos > 0 && (
             <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-verde px-1 text-[11px] font-bold text-[#04140c]">
               {articulos}
@@ -142,78 +110,82 @@ function EncabezadoBanner({
   );
 }
 
-/* Navegación de categorías (sidebar + drawer) --------------------------- */
 function NavCategorias({ cerrar }: { cerrar?: () => void }) {
   const ruta = usePathname();
-
-  const item = (
-    href: string,
-    etiqueta: string,
-    icono: React.ReactNode,
-    exacto = true,
-  ) => {
-    const activo = exacto ? ruta === href : ruta.startsWith(href);
-    return (
-      <Link
-        key={href}
-        href={href}
-        onClick={cerrar}
-        className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
-          activo
-            ? "bg-white/[0.06] font-semibold text-white before:absolute before:inset-y-1.5 before:left-0 before:w-[3px] before:rounded-full before:bg-verde"
-            : "font-medium text-white/55 hover:bg-white/[0.04] hover:text-white"
-        }`}
-      >
-        <span className={activo ? "text-verde" : "text-white/40"}>{icono}</span>
-        {etiqueta}
-      </Link>
-    );
-  };
-
   return (
     <div className="flex h-full flex-col">
       {cerrar && (
-        <div className="flex items-center gap-2 border-b border-white/10 px-5 py-4">
+        <Link
+          href="/tienda"
+          onClick={cerrar}
+          className="flex items-center px-5 py-4"
+        >
           <Image
             src="/logo-no-fluke-store.png"
             alt="No Fluke Store"
             width={120}
             height={100}
-            className="h-9 w-auto"
+            className="h-10 w-auto"
           />
-        </div>
+        </Link>
       )}
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-        {item("/tienda", "Inicio", Ico.inicio("h-[18px] w-[18px]"))}
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-3">
+        <Link
+          href="/tienda"
+          onClick={cerrar}
+          className={`block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
+            ruta === "/tienda"
+              ? "bg-verde text-[#04140c]"
+              : "text-white/70 hover:bg-white/5 hover:text-white"
+          }`}
+        >
+          Inicio
+        </Link>
 
-        <p className="px-3 pb-1.5 pt-5 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/30">
-          Catálogo
+        <p className="px-3 pb-1 pt-4 text-[11px] font-bold uppercase tracking-[0.2em] text-white/35">
+          Categorías
         </p>
-        {CATEGORIAS.map((c) =>
-          item(
-            `/tienda/categoria/${c.slug}`,
-            c.nombre,
-            <span className="h-[18px] w-[18px] rounded-sm border border-current" />,
-          ),
-        )}
+        {CATEGORIAS.map((c) => {
+          const href = `/tienda/categoria/${c.slug}`;
+          const activo = ruta === href;
+          return (
+            <Link
+              key={c.slug}
+              href={href}
+              onClick={cerrar}
+              className={`block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                activo
+                  ? "bg-white/10 text-white"
+                  : "text-white/60 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              {c.nombre}
+            </Link>
+          );
+        })}
 
-        <div className="pt-4">
-          {item("/tienda/ofertas", "Ofertas", Ico.etiqueta("h-[18px] w-[18px]"), false)}
-        </div>
+        <Link
+          href="/tienda/ofertas"
+          onClick={cerrar}
+          className="mt-2 flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-verde hover:bg-white/5"
+        >
+          🔥 Ofertas
+        </Link>
       </nav>
 
       <div className="border-t border-white/10 px-5 py-4">
-        <p className="text-sm font-semibold text-white">El estilo no es suerte.</p>
-        <p className="mt-1 text-[11px] leading-relaxed text-white/40">
-          Pides por WhatsApp y coordinamos la entrega en todo el país.
+        <p className="font-display text-sm font-extrabold uppercase leading-tight tracking-tight text-white/80">
+          Más que ropa
+          <br />
+          <span className="text-verde">es estilo</span>
         </p>
+        <p className="mt-1 text-[11px] text-white/40">El estilo no es suerte.</p>
       </div>
     </div>
   );
 }
 
-/* Marco ----------------------------------------------------------------- */
 export default function MarcoTienda({
   children,
 }: {
@@ -222,9 +194,9 @@ export default function MarcoTienda({
   const [abierto, setAbierto] = useState(false);
   const ruta = usePathname();
 
-  const navInferior = [
-    { href: "/tienda", etiqueta: "Inicio", icono: Ico.inicio },
-    { href: "/tienda/ofertas", etiqueta: "Ofertas", icono: Ico.etiqueta },
+  const itemsNav = [
+    { href: "/tienda", etiqueta: "Inicio", icono: "🏠" },
+    { href: "/tienda/ofertas", etiqueta: "Ofertas", icono: "🔥" },
   ];
 
   return (
@@ -241,7 +213,7 @@ export default function MarcoTienda({
             className="absolute inset-0 bg-black/60"
             onClick={() => setAbierto(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-64 border-r border-white/10 bg-[#0b100d]">
+          <aside className="absolute left-0 top-0 h-full w-64 border-r border-white/10 bg-[#070c09]">
             <NavCategorias cerrar={() => setAbierto(false)} />
           </aside>
         </div>
@@ -249,7 +221,7 @@ export default function MarcoTienda({
 
       <div className="flex pt-24 sm:pt-28">
         {/* Sidebar escritorio */}
-        <aside className="hidden w-60 shrink-0 border-r border-white/10 bg-[#0b100d] lg:block">
+        <aside className="hidden w-56 shrink-0 border-r border-white/10 bg-[#070c09] lg:block">
           <div className="sticky top-28 h-[calc(100dvh-7rem)] overflow-y-auto">
             <NavCategorias />
           </div>
@@ -261,40 +233,40 @@ export default function MarcoTienda({
       </div>
 
       {/* Navegación inferior móvil */}
-      <nav className="fixed bottom-0 left-0 z-40 flex w-full items-stretch border-t border-white/10 bg-[#0b100d] lg:hidden">
-        {navInferior.map(({ href, etiqueta, icono }) => {
-          const activo = ruta === href;
+      <nav className="fixed bottom-0 left-0 z-40 flex w-full items-stretch border-t border-white/10 bg-[#070c09] lg:hidden">
+        {itemsNav.map((item) => {
+          const activo = ruta === item.href;
           return (
             <Link
-              key={href}
-              href={href}
-              className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium ${
-                activo ? "text-verde" : "text-white/50"
+              key={item.href}
+              href={item.href}
+              className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium ${
+                activo ? "text-verde" : "text-white/55"
               }`}
             >
-              {icono("h-5 w-5")}
-              {etiqueta}
+              <span className="text-base">{item.icono}</span>
+              {item.etiqueta}
             </Link>
           );
         })}
         <button
           type="button"
           onClick={() => setAbierto(true)}
-          className="flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-white/50"
+          className="flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium text-white/55"
         >
-          {Ico.grid("h-5 w-5")}
+          <span className="text-base">▤</span>
           Categorías
         </button>
         <Link
           href="/tienda/carrito"
-          className={`flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium ${
-            ruta === "/tienda/carrito" ? "text-verde" : "text-white/50"
+          className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium ${
+            ruta === "/tienda/carrito" ? "text-verde" : "text-white/55"
           }`}
         >
-          <span className="relative">
-            {Ico.carrito("h-5 w-5")}
+          <span className="relative text-base">
+            🛒
             {ARTICULOS_CARRITO > 0 && (
-              <span className="absolute -right-2 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-verde px-1 text-[9px] font-bold text-[#04140c]">
+              <span className="absolute -right-2 -top-1 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-verde px-1 text-[9px] font-bold text-[#04140c]">
                 {ARTICULOS_CARRITO}
               </span>
             )}

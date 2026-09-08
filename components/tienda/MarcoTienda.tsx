@@ -128,9 +128,7 @@ function NavCategorias({ cerrar }: { cerrar?: () => void }) {
           Inicio
         </Link>
 
-        <p className="px-3 pb-1 pt-4 text-[11px] font-bold uppercase tracking-[0.2em] text-white/35">
-          Categorías
-        </p>
+        <div className="pt-2" />
         {CATEGORIAS.map((c) => {
           const href = `/tienda/categoria/${c.slug}`;
           const activo = ruta === href;

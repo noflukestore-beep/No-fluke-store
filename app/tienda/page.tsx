@@ -4,21 +4,33 @@ import { CATEGORIAS, DESTACADOS, OFERTAS } from "@/lib/tienda/demo";
 
 export const metadata = { title: "Tienda" };
 
+const ICONO_CAT: Record<string, string> = {
+  perfumes: "🧴",
+  ropa: "🧥",
+  "t-shirts": "👕",
+  calzados: "👟",
+  accesorios: "🧢",
+};
+
 export default function TiendaInicio() {
   return (
     <div className="space-y-8">
-      {/* Categorías */}
+      {/* Categorías — barra segmentada */}
       <section>
-        <h2 className="mb-3 font-display text-lg font-extrabold uppercase tracking-tight">
-          Categorías
-        </h2>
-        <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-full border border-white/12 bg-white/[0.03] p-1 align-top [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <Link
+            href="/tienda"
+            className="shrink-0 rounded-full px-4 py-2 text-sm font-semibold text-white ring-2 ring-verde ring-inset"
+          >
+            Todos
+          </Link>
           {CATEGORIAS.map((c) => (
             <Link
               key={c.slug}
               href={`/tienda/categoria/${c.slug}`}
-              className="shrink-0 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:border-verde/40 hover:text-white"
+              className="flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
             >
+              <span aria-hidden>{ICONO_CAT[c.slug] ?? "•"}</span>
               {c.nombre}
             </Link>
           ))}

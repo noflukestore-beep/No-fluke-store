@@ -24,7 +24,7 @@ export default function AdminPedidos() {
           <h1 className="font-display text-2xl font-extrabold tracking-tight md:text-3xl">
             Pedidos
           </h1>
-          <p className="text-sm text-humo first-letter:uppercase">{HOY}</p>
+          <p className="text-sm text-white/50 first-letter:uppercase">{HOY}</p>
         </div>
         <span className="rounded-lg border border-amber-400/30 bg-amber-400/10 px-2.5 py-1.5 text-xs font-semibold text-amber-300">
           Datos de ejemplo · aún no lee Firestore
@@ -77,10 +77,10 @@ function Tarjeta({
       className={`rounded-xl border p-4 ${
         acento
           ? "border-verde/40 bg-verde/5"
-          : "border-white/10 bg-tinta-suave"
+          : "border-white/10 bg-white/[0.03]"
       }`}
     >
-      <p className="text-xs text-humo">{etiqueta}</p>
+      <p className="text-xs text-white/50">{etiqueta}</p>
       <p
         className={`mt-1 font-display text-2xl font-extrabold tracking-tight ${
           acento ? "text-verde" : ""

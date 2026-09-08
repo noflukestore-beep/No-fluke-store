@@ -84,8 +84,8 @@ function Contenido({ cerrar }: { cerrar?: () => void }) {
               onClick={cerrar}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 activo
-                  ? "bg-verde text-tinta"
-                  : "text-humo hover:bg-white/5 hover:text-white"
+                  ? "bg-verde text-[#04140c]"
+                  : "text-white/60 hover:bg-white/5 hover:text-white"
               }`}
             >
               <Icono nombre={icono} />
@@ -93,7 +93,7 @@ function Contenido({ cerrar }: { cerrar?: () => void }) {
               {badge != null && (
                 <span
                   className={`rounded-full px-1.5 text-[11px] font-bold ${
-                    activo ? "bg-tinta text-verde" : "bg-verde text-tinta"
+                    activo ? "bg-[#04140c] text-verde" : "bg-verde text-[#04140c]"
                   }`}
                 >
                   {badge}
@@ -107,7 +107,7 @@ function Contenido({ cerrar }: { cerrar?: () => void }) {
         <button
           type="button"
           onClick={() => setCatAbierto((v) => !v)}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-humo transition-colors hover:bg-white/5 hover:text-white"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
         >
           <Icono nombre="categorias" />
           <span className="flex-1 text-left">Categorías</span>
@@ -124,7 +124,7 @@ function Contenido({ cerrar }: { cerrar?: () => void }) {
                   key={c.slug}
                   href={href}
                   onClick={cerrar}
-                  className="block rounded-md px-3 py-1.5 text-sm text-humo transition-colors hover:bg-white/5 hover:text-white"
+                  className="block rounded-md px-3 py-1.5 text-sm text-white/50 transition-colors hover:bg-white/5 hover:text-white"
                 >
                   {c.nombre}
                 </Link>
@@ -138,8 +138,8 @@ function Contenido({ cerrar }: { cerrar?: () => void }) {
           onClick={cerrar}
           className={`mt-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
             esActivo("/admin/config")
-              ? "bg-verde text-tinta"
-              : "text-humo hover:bg-white/5 hover:text-white"
+              ? "bg-verde text-[#04140c]"
+              : "text-white/60 hover:bg-white/5 hover:text-white"
           }`}
         >
           <Icono nombre="config" />
@@ -153,7 +153,7 @@ function Contenido({ cerrar }: { cerrar?: () => void }) {
           <br />
           <span className="text-verde">es estilo</span>
         </p>
-        <p className="mt-1 text-[11px] text-humo">
+        <p className="mt-1 text-[11px] text-white/40">
           No Fluke Store — el estilo no es suerte.
         </p>
       </div>
@@ -165,9 +165,9 @@ export default function MarcoAdmin({ children }: { children: React.ReactNode }) 
   const [abierto, setAbierto] = useState(false);
 
   return (
-    <div className="flex min-h-dvh bg-tinta text-white">
+    <div className="flex min-h-dvh bg-[#0a0f0c] text-white">
       {/* Sidebar escritorio */}
-      <aside className="hidden w-60 shrink-0 border-r border-white/10 bg-tinta lg:block">
+      <aside className="hidden w-60 shrink-0 border-r border-white/10 bg-[#070c09] lg:block">
         <div className="sticky top-0 h-dvh">
           <Contenido />
         </div>
@@ -180,7 +180,7 @@ export default function MarcoAdmin({ children }: { children: React.ReactNode }) 
             className="absolute inset-0 bg-black/60"
             onClick={() => setAbierto(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-64 border-r border-white/10 bg-tinta">
+          <aside className="absolute left-0 top-0 h-full w-64 border-r border-white/10 bg-[#070c09]">
             <Contenido cerrar={() => setAbierto(false)} />
           </aside>
         </div>
@@ -188,7 +188,7 @@ export default function MarcoAdmin({ children }: { children: React.ReactNode }) 
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Barra superior */}
-        <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-white/10 bg-tinta/90 px-4 backdrop-blur md:px-6">
+        <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-white/10 bg-[#0a0f0c]/90 px-4 backdrop-blur md:px-6">
           <button
             type="button"
             onClick={() => setAbierto(true)}
@@ -201,16 +201,16 @@ export default function MarcoAdmin({ children }: { children: React.ReactNode }) 
           </button>
 
           <div className="relative flex-1 md:max-w-md">
-            <svg viewBox="0 0 24 24" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-humo" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg viewBox="0 0 24 24" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="7" />
               <path d="m20 20-3.5-3.5" strokeLinecap="round" />
             </svg>
             <input
               type="search"
               placeholder="Buscar productos, pedidos, clientes…"
-              className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-9 pr-12 text-sm text-white placeholder:text-humo focus:border-verde/50 focus:outline-none"
+              className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-9 pr-12 text-sm text-white placeholder:text-white/40 focus:border-verde/50 focus:outline-none"
             />
-            <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-white/15 px-1.5 py-0.5 text-[10px] text-humo">
+            <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-white/15 px-1.5 py-0.5 text-[10px] text-white/40">
               ⌘K
             </kbd>
           </div>
@@ -229,18 +229,18 @@ export default function MarcoAdmin({ children }: { children: React.ReactNode }) 
 
             <Link
               href="/"
-              className="hidden rounded-lg px-3 py-2 text-sm font-medium text-humo hover:bg-white/5 hover:text-white sm:block"
+              className="hidden rounded-lg px-3 py-2 text-sm font-medium text-white/60 hover:bg-white/5 hover:text-white sm:block"
             >
               Ver tienda ↗
             </Link>
 
             <div className="ml-1 flex items-center gap-2 rounded-lg py-1 pl-1 pr-2 hover:bg-white/5">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-verde text-xs font-bold text-tinta">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-verde text-xs font-bold text-[#04140c]">
                 NF
               </span>
               <div className="hidden leading-tight sm:block">
                 <p className="text-sm font-semibold">Administrador</p>
-                <p className="text-[11px] text-humo">No Fluke Store</p>
+                <p className="text-[11px] text-white/45">No Fluke Store</p>
               </div>
             </div>
           </div>

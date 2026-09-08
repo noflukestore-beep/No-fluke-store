@@ -6,7 +6,7 @@ const GRADIENTE_MARCA =
 
 export default function Bienvenida() {
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-tinta text-white">
+    <div className="relative min-h-dvh overflow-hidden bg-[#040705] text-white">
       <section
         className="relative flex min-h-dvh flex-col items-center justify-center px-6 py-16 text-center"
         style={{ backgroundImage: "var(--fondo-bienvenida)" }}
@@ -35,7 +35,7 @@ export default function Bienvenida() {
             Bienvenido a
           </span>
           <span
-            className="b-subir block italic text-verde"
+            className="b-subir block italic text-verde-claro"
             style={{ fontSize: "clamp(30px,7vw,54px)", animationDelay: "1.1s" }}
           >
             No Fluke Store
@@ -68,9 +68,9 @@ export default function Bienvenida() {
           className="b-subir relative z-10 mt-14 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-white/45"
           style={{ animationDelay: "1.85s" }}
         >
-          Perfumes <span className="text-verde">◆</span> Ropa{" "}
-          <span className="text-verde">◆</span> T-Shirts{" "}
-          <span className="text-verde">◆</span> Zapatos
+          Perfumes <span className="text-verde-claro">◆</span> Ropa{" "}
+          <span className="text-verde-claro">◆</span> T-Shirts{" "}
+          <span className="text-verde-claro">◆</span> Zapatos
         </div>
       </section>
     </div>

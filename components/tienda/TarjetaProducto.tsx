@@ -1,15 +1,7 @@
 import Link from "next/link";
 import { porcentaje, type ProductoDemo } from "@/lib/tienda/demo";
-import Precio from "@/components/tienda/Precio";
+import { formatearRDCorto } from "@/lib/precios";
 
-/**
- * Sin borde, sin radio, sin relleno translúcido.
- *
- * La foto se apoya sobre lienzo blanco y el texto va debajo, alineado al
- * mismo eje. En una rejilla apretada las fotos forman un muro de mercancía,
- * que es como se ve una tienda de verdad. El marco de tarjeta solo mete
- * ruido entre producto y producto.
- */
 export default function TarjetaProducto({
   producto,
 }: {
@@ -20,41 +12,62 @@ export default function TarjetaProducto({
   return (
     <Link
       href={`/tienda/producto/${producto.slug}`}
-      className="group block"
+      className="group flex flex-col overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] transition-colors hover:border-verde/40"
     >
-      <div className="relative aspect-square overflow-hidden bg-lienzo">
-        {/* Aquí va next/image en la Fase 2. */}
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,#fff_0%,#f3f5f2_100%)]" />
-
-        {enOferta && (
-          <span className="cifra absolute left-0 top-0 bg-verde px-2 py-1 text-sm text-tinta">
-            −{porcentaje(producto.precio, producto.precioOferta!)}%
-          </span>
-        )}
-
+      <div className="relative aspect-square bg-gradient-to-br from-white/[0.07] to-transparent">
+        {/* Insignias */}
+        <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
+          {enOferta && (
+            <span className="rounded-md bg-verde px-1.5 py-0.5 text-[11px] font-extrabold text-[#04140c]">
+              -{porcentaje(producto.precio, producto.precioOferta!)}%
+            </span>
+          )}
+          {producto.precioMayor != null && !enOferta && (
+            <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white/70 backdrop-blur">
+              Por mayor
+            </span>
+          )}
+        </div>
         {producto.agotado && (
-          <div className="absolute inset-0 grid place-items-center bg-lienzo/75">
-            <span className="border border-tinta px-3 py-1 text-xs font-semibold text-tinta">
+          <div className="absolute inset-0 grid place-items-center bg-black/50">
+            <span className="rounded-md bg-white/10 px-2 py-1 text-xs font-bold uppercase tracking-wide">
               Agotado
             </span>
           </div>
         )}
-
         {!producto.agotado && producto.ultimasUnidades != null && (
-          <span className="absolute bottom-0 left-0 bg-alerta px-2 py-1 text-[11px] font-semibold text-white">
-            Quedan {producto.ultimasUnidades}
+          <span className="absolute bottom-2 left-2 rounded-md bg-rose-500/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+            Últimas {producto.ultimasUnidades}
           </span>
         )}
       </div>
 
-      {/* Filete que ata la foto con su información. */}
-      <div className="border-t border-tinta pt-2">
-        <p className="text-[11px] text-humo">{producto.marca}</p>
-        <p className="mt-0.5 line-clamp-2 text-sm leading-snug text-tinta group-hover:underline group-hover:decoration-verde-hondo group-hover:decoration-2 group-hover:underline-offset-2">
+      <div className="flex flex-1 flex-col p-2.5">
+        <p className="text-[11px] uppercase tracking-wide text-white/40">
+          {producto.marca}
+        </p>
+        <p className="mt-0.5 line-clamp-2 text-sm font-medium leading-snug">
           {producto.nombre}
         </p>
-        <div className="mt-2">
-          <Precio producto={producto} />
+
+        <div className="mt-auto pt-2">
+          <div className="flex flex-wrap items-baseline gap-x-1.5">
+            <span className="font-display text-sm font-extrabold text-verde sm:text-base">
+              {formatearRDCorto(enOferta ? producto.precioOferta! : producto.precio)}
+            </span>
+            {enOferta && (
+              <span className="text-[11px] text-white/35 line-through">
+                {formatearRDCorto(producto.precio)}
+              </span>
+            )}
+          </div>
+
+          {producto.precioMayor != null && producto.cantidadMayor != null && (
+            <p className="mt-0.5 text-[11px] text-white/45">
+              Desde {producto.cantidadMayor} und:{" "}
+              {formatearRDCorto(producto.precioMayor)}
+            </p>
+          )}
         </div>
       </div>
     </Link>

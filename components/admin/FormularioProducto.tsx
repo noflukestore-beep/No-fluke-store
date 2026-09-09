@@ -63,8 +63,9 @@ export default function FormularioProducto({
     producto?.genero ?? "",
   );
   const [descripcion, setDescripcion] = useState(producto?.descripcion ?? "");
-  const [sku, setSku] = useState(producto?.sku ?? "");
-  const [codigoBarra, setCodigoBarra] = useState(producto?.codigoBarra ?? "");
+  // SKU y código de barra: se conservan si ya existen, pero no se editan aquí.
+  const sku = producto?.sku ?? "";
+  const codigoBarra = producto?.codigoBarra ?? "";
   const [activo, setActivo] = useState(producto?.activo ?? true);
   const [destacado, setDestacado] = useState(producto?.destacado ?? false);
   const [nuevoIngreso, setNuevoIngreso] = useState(
@@ -214,7 +215,7 @@ export default function FormularioProducto({
             </select>
           </Campo>
         </div>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="sm:max-w-xs">
           <Campo etiqueta="Género">
             <select
               value={genero}
@@ -228,16 +229,6 @@ export default function FormularioProducto({
               <option value="mujer">Mujer</option>
               <option value="unisex">Unisex</option>
             </select>
-          </Campo>
-          <Campo etiqueta="SKU">
-            <input value={sku} onChange={(e) => setSku(e.target.value)} className={entrada} />
-          </Campo>
-          <Campo etiqueta="Código de barra">
-            <input
-              value={codigoBarra}
-              onChange={(e) => setCodigoBarra(e.target.value)}
-              className={entrada}
-            />
           </Campo>
         </div>
         <Campo etiqueta="Descripción">

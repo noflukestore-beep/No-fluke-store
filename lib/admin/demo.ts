@@ -4,15 +4,6 @@
  */
 import type { EstadoPedido } from "@/lib/firebase/tipos";
 
-// --- Categorías del catálogo (vienen de la colección `categorias`) ---------
-export const CATEGORIAS_MENU = [
-  { nombre: "Perfumes", slug: "perfumes" },
-  { nombre: "Ropa", slug: "ropa" },
-  { nombre: "T-Shirts", slug: "t-shirts" },
-  { nombre: "Calzados", slug: "calzados" },
-  { nombre: "Accesorios", slug: "accesorios" },
-];
-
 // --- KPIs del período -----------------------------------------------------
 export interface Kpi {
   etiqueta: string;

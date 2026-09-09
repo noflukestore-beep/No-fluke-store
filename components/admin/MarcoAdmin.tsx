@@ -4,16 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { CATEGORIAS_MENU } from "@/lib/admin/demo";
 
 type IconoNombre =
   | "dashboard"
   | "productos"
-  | "pedidos"
-  | "clientes"
-  | "inventario"
-  | "ofertas"
   | "categorias"
+  | "pedidos"
   | "config";
 
 const RUTAS: Array<{
@@ -24,21 +20,17 @@ const RUTAS: Array<{
 }> = [
   { href: "/admin", etiqueta: "Dashboard", icono: "dashboard" },
   { href: "/admin/productos", etiqueta: "Productos", icono: "productos" },
+  { href: "/admin/categorias", etiqueta: "Categorías", icono: "categorias" },
   { href: "/admin/pedidos", etiqueta: "Pedidos", icono: "pedidos", badge: 3 },
-  { href: "/admin/clientes", etiqueta: "Clientes", icono: "clientes" },
-  { href: "/admin/inventario", etiqueta: "Inventario", icono: "inventario" },
-  { href: "/admin/ofertas", etiqueta: "Ofertas", icono: "ofertas" },
+  { href: "/admin/config", etiqueta: "Configuración", icono: "config" },
 ];
 
 function Icono({ nombre }: { nombre: IconoNombre }) {
   const p: Record<IconoNombre, string> = {
     dashboard: "M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6V11h-6v9Zm0-16v5h6V4h-6Z",
     productos: "M3 7l9-4 9 4-9 4-9-4Zm0 5l9 4 9-4M3 17l9 4 9-4",
-    pedidos: "M6 2h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Zm8 1v5h5M8 13h8M8 17h6",
-    clientes: "M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM4 21a8 8 0 0 1 16 0",
-    inventario: "M4 7v10l8 4 8-4V7l-8-4-8 4Zm0 0 8 4 8-4M12 11v10",
-    ofertas: "M9 3H5a2 2 0 0 0-2 2v4l11 11 6-6L9 3Zm-2 4h.01",
     categorias: "M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z",
+    pedidos: "M6 2h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Zm8 1v5h5M8 13h8M8 17h6",
     config: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8-3a8 8 0 0 0-.2-1.8l2-1.5-2-3.4-2.3 1a8 8 0 0 0-3-1.8L14 1h-4l-.5 2.7a8 8 0 0 0-3 1.8l-2.3-1-2 3.4 2 1.5A8 8 0 0 0 4 12c0 .6 0 1.2.2 1.8l-2 1.5 2 3.4 2.3-1a8 8 0 0 0 3 1.8L10 23h4l.5-2.7a8 8 0 0 0 3-1.8l2.3 1 2-3.4-2-1.5c.1-.6.2-1.2.2-1.8Z",
   };
   return (
@@ -50,9 +42,6 @@ function Icono({ nombre }: { nombre: IconoNombre }) {
 
 function Contenido({ cerrar }: { cerrar?: () => void }) {
   const ruta = usePathname();
-  const [catAbierto, setCatAbierto] = useState(
-    ruta.startsWith("/admin/productos"),
-  );
 
   const esActivo = (href: string) =>
     href === "/admin" ? ruta === "/admin" : ruta.startsWith(href);
@@ -102,49 +91,6 @@ function Contenido({ cerrar }: { cerrar?: () => void }) {
             </Link>
           );
         })}
-
-        {/* Categorías desplegable */}
-        <button
-          type="button"
-          onClick={() => setCatAbierto((v) => !v)}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
-        >
-          <Icono nombre="categorias" />
-          <span className="flex-1 text-left">Categorías</span>
-          <span className={`transition-transform ${catAbierto ? "rotate-90" : ""}`}>
-            ›
-          </span>
-        </button>
-        {catAbierto && (
-          <div className="ml-4 space-y-0.5 border-l border-white/10 pl-3">
-            {CATEGORIAS_MENU.map((c) => {
-              const href = `/admin/productos?cat=${c.slug}`;
-              return (
-                <Link
-                  key={c.slug}
-                  href={href}
-                  onClick={cerrar}
-                  className="block rounded-md px-3 py-1.5 text-sm text-white/50 transition-colors hover:bg-white/5 hover:text-white"
-                >
-                  {c.nombre}
-                </Link>
-              );
-            })}
-          </div>
-        )}
-
-        <Link
-          href="/admin/config"
-          onClick={cerrar}
-          className={`mt-1 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-            esActivo("/admin/config")
-              ? "bg-verde text-[#04140c]"
-              : "text-white/60 hover:bg-white/5 hover:text-white"
-          }`}
-        >
-          <Icono nombre="config" />
-          Configuración
-        </Link>
       </nav>
 
       <div className="border-t border-white/10 px-5 py-4">

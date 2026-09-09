@@ -47,7 +47,6 @@ export default function TablaCategorias({
           <tr>
             <th className="px-3 py-2.5 font-medium">Categoría</th>
             <th className="px-3 py-2.5 font-medium">Productos</th>
-            <th className="px-3 py-2.5 font-medium">Orden</th>
             <th className="px-3 py-2.5 font-medium">Estado</th>
             <th className="px-3 py-2.5 font-medium text-right">Acciones</th>
           </tr>
@@ -55,7 +54,7 @@ export default function TablaCategorias({
         <tbody className="divide-y divide-white/5">
           {categorias.length === 0 && (
             <tr>
-              <td colSpan={5} className="px-3 py-10 text-center text-white/40">
+              <td colSpan={4} className="px-3 py-10 text-center text-white/40">
                 Todavía no hay categorías.
               </td>
             </tr>
@@ -69,7 +68,6 @@ export default function TablaCategorias({
               <td className="px-3 py-2.5 text-white/70">
                 {conteos[c.id] ?? 0}
               </td>
-              <td className="px-3 py-2.5 text-white/70">{c.orden}</td>
               <td className="px-3 py-2.5">
                 <button
                   type="button"

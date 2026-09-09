@@ -10,21 +10,15 @@ const entrada =
 
 export default function FormularioCategoria({
   categoria,
-  ordenSugerido,
 }: {
   categoria?: Categoria;
-  ordenSugerido?: number;
 }) {
   const router = useRouter();
   const [pendiente, iniciar] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
   const [nombre, setNombre] = useState(categoria?.nombre ?? "");
-  const [icono, setIcono] = useState(categoria?.icono ?? "");
   const [descripcion, setDescripcion] = useState(categoria?.descripcion ?? "");
-  const [orden, setOrden] = useState(
-    String(categoria?.orden ?? ordenSugerido ?? 1),
-  );
   const [activa, setActiva] = useState(categoria?.activa ?? true);
 
   function enviar(e: React.FormEvent) {
@@ -35,8 +29,6 @@ export default function FormularioCategoria({
         id: categoria?.id,
         nombre,
         descripcion,
-        icono,
-        orden: Number(orden) || 0,
         activa,
       });
       if (r.ok) {
@@ -63,33 +55,6 @@ export default function FormularioCategoria({
             className={entrada}
           />
         </label>
-
-        <div className="mt-4 grid gap-4 sm:grid-cols-[100px_1fr]">
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium text-white/50">
-              Icono
-            </span>
-            <input
-              value={icono}
-              onChange={(e) => setIcono(e.target.value)}
-              placeholder="🧴"
-              maxLength={4}
-              className={`${entrada} text-center text-lg`}
-            />
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium text-white/50">
-              Orden
-            </span>
-            <input
-              type="number"
-              min={0}
-              value={orden}
-              onChange={(e) => setOrden(e.target.value)}
-              className={entrada}
-            />
-          </label>
-        </div>
 
         <label className="mt-4 block">
           <span className="mb-1 block text-xs font-medium text-white/50">

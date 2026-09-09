@@ -11,8 +11,6 @@ export interface CategoriaInput {
   id?: string;
   nombre: string;
   descripcion: string;
-  icono: string;
-  orden: number;
   activa: boolean;
 }
 
@@ -53,14 +51,13 @@ export async function guardarCategoria(
     nombre,
     slug,
     descripcion: entrada.descripcion.trim() || null,
-    icono: entrada.icono.trim() || null,
-    orden: Math.round(entrada.orden || 0),
     activa: entrada.activa,
   };
 
   let id = entrada.id;
   if (id) {
     const previo = await adminDb.collection("categorias").doc(id).get();
+    // icono y orden se conservan tal cual (se administran aparte).
     await adminDb.collection("categorias").doc(id).update(datos);
 
     // Si cambió el nombre o el slug, sincronizar los productos (§2.2).
@@ -85,8 +82,17 @@ export async function guardarCategoria(
       await lote.commit();
     }
   } else {
+    // orden: al final de la lista actual.
+    const todas = await adminDb.collection("categorias").get();
+    let maxOrden = 0;
+    todas.forEach((d) => {
+      const o = d.data().orden;
+      if (typeof o === "number" && o > maxOrden) maxOrden = o;
+    });
     const ref = await adminDb.collection("categorias").add({
       ...datos,
+      icono: null,
+      orden: maxOrden + 1,
       imagenUrl: null,
       creadoEn: FieldValue.serverTimestamp(),
     });

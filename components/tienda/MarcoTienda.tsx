@@ -4,8 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { CATEGORIAS } from "@/lib/tienda/demo";
 import Buscador from "@/components/tienda/Buscador";
+
+export type CategoriaNav = { nombre: string; slug: string };
 
 const ARTICULOS_CARRITO = 2; // TODO Fase 4: store de Zustand
 
@@ -24,9 +25,11 @@ function IconoCarrito({ className = "" }: { className?: string }) {
 function EncabezadoBanner({
   onMenu,
   articulos,
+  categorias,
 }: {
   onMenu: () => void;
   articulos: number;
+  categorias: CategoriaNav[];
 }) {
   return (
     <header className="fixed inset-x-0 top-0 z-50 h-24 border-b-2 border-verde bg-black sm:h-28">
@@ -63,7 +66,7 @@ function EncabezadoBanner({
         </Link>
 
         {/* Buscador con selector de categoría */}
-        <Buscador />
+        <Buscador categorias={categorias} />
 
         {/* Menú (móvil) */}
         <button
@@ -95,7 +98,13 @@ function EncabezadoBanner({
   );
 }
 
-function NavCategorias({ cerrar }: { cerrar?: () => void }) {
+function NavCategorias({
+  cerrar,
+  categorias,
+}: {
+  cerrar?: () => void;
+  categorias: CategoriaNav[];
+}) {
   const ruta = usePathname();
   return (
     <div className="flex h-full flex-col">
@@ -129,7 +138,7 @@ function NavCategorias({ cerrar }: { cerrar?: () => void }) {
         </Link>
 
         <div className="pt-2" />
-        {CATEGORIAS.map((c) => {
+        {categorias.map((c) => {
           const href = `/tienda/categoria/${c.slug}`;
           const activo = ruta === href;
           return (
@@ -171,8 +180,10 @@ function NavCategorias({ cerrar }: { cerrar?: () => void }) {
 
 export default function MarcoTienda({
   children,
+  categorias,
 }: {
   children: React.ReactNode;
+  categorias: CategoriaNav[];
 }) {
   const [abierto, setAbierto] = useState(false);
   const ruta = usePathname();
@@ -187,6 +198,7 @@ export default function MarcoTienda({
       <EncabezadoBanner
         onMenu={() => setAbierto(true)}
         articulos={ARTICULOS_CARRITO}
+        categorias={categorias}
       />
 
       {/* Drawer móvil */}
@@ -197,7 +209,10 @@ export default function MarcoTienda({
             onClick={() => setAbierto(false)}
           />
           <aside className="absolute left-0 top-0 h-full w-64 border-r border-white/10 bg-[#070c09]">
-            <NavCategorias cerrar={() => setAbierto(false)} />
+            <NavCategorias
+              cerrar={() => setAbierto(false)}
+              categorias={categorias}
+            />
           </aside>
         </div>
       )}
@@ -206,7 +221,7 @@ export default function MarcoTienda({
         {/* Sidebar escritorio */}
         <aside className="hidden w-56 shrink-0 border-r border-white/10 bg-[#070c09] lg:block">
           <div className="sticky top-28 h-[calc(100dvh-7rem)] overflow-y-auto">
-            <NavCategorias />
+            <NavCategorias categorias={categorias} />
           </div>
         </aside>
 

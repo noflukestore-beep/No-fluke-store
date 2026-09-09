@@ -1,42 +1,36 @@
 /**
- * Tipos del modelo de datos. Reflejan exactamente la sección 2 de
- * ESPECIFICACION.md. Firestore no tiene joins: variantes e imágenes viven
- * embebidas dentro del producto.
+ * Tipos del modelo de datos (Firestore, denormalizado).
+ * Base: sección 2 de ESPECIFICACION.md + campos útiles del diseño del admin.
+ *
+ * Las fechas se guardan como epoch millis (`number`), no como `Timestamp`,
+ * para que los objetos sean serializables y no acoplen la app a un SDK.
+ * La capa de lectura (`lib/firebase/catalogo.ts`) hace la conversión.
  */
 
-/**
- * Forma estructural común a `Timestamp` del SDK de cliente
- * (`firebase/firestore`) y del Admin SDK (`firebase-admin/firestore`).
- * Se usa aquí para no acoplar los tipos del modelo a un SDK concreto.
- */
-export interface Timestamp {
-  toDate(): Date;
-  toMillis(): number;
-  seconds: number;
-  nanoseconds: number;
-}
-
+export type Genero = "hombre" | "mujer" | "unisex";
 export type TipoPrecio = "detalle" | "oferta" | "mayor";
-
 export type EstadoPedido =
   | "pendiente"
   | "confirmado"
   | "entregado"
   | "cancelado";
 
-// --- Categorías ------------------------------------------------------------
+// --- Categorías ----------------------------------------------------------
 
 export interface Categoria {
   id: string;
   nombre: string;
   slug: string;
+  descripcion: string | null;
   imagenUrl: string | null;
+  /** Emoji o nombre de icono para el menú. */
+  icono: string | null;
   orden: number;
   activa: boolean;
-  creadoEn: Timestamp;
+  creadoEn: number;
 }
 
-// --- Productos -----------------------------------------------------------
+// --- Productos ---------------------------------------------------------
 
 export interface Variante {
   id: string;
@@ -44,6 +38,8 @@ export interface Variante {
   color: string;
   sku: string;
   stock: number;
+  /** Sobreprecio de esta variante (0 por defecto). */
+  precioExtra: number;
   activo: boolean;
 }
 
@@ -62,37 +58,51 @@ export interface Producto {
   slug: string;
   descripcion: string;
   marca: string;
+  sku: string | null;
+  codigoBarra: string | null;
+  genero: Genero | null;
 
   // Denormalizado: se copia de la categoría para no hacer segunda lectura.
   categoriaId: string;
   categoriaNombre: string;
   categoriaSlug: string;
 
+  /** Costo. SOLO admin — nunca se envía al frente de tienda. */
+  precioCompra: number | null;
+
   precio: number;
   precioOferta: number | null;
-  ofertaHasta: Timestamp | null;
+  /** Denormalizado = `precioOferta != null`. La vigencia se revisa al leer. */
+  tieneOferta: boolean;
+  /** Millis. `null` = sin fecha de fin. */
+  ofertaHasta: number | null;
 
-  // Precio al por mayor: se aplica al llegar a la cantidad mínima.
   precioMayor: number | null;
   /** Unidades del producto, sumando variantes. */
   cantidadMayor: number | null;
 
   activo: boolean;
   destacado: boolean;
+  nuevoIngreso: boolean;
 
   variantes: Variante[];
   imagenes: Imagen[];
-
   /** Tokens en minúscula y sin acentos, para búsqueda con array-contains. */
   keywords: string[];
 
   /** Suma de `stock` de las variantes. Se recalcula al guardar. */
   stockTotal: number;
-  creadoEn: Timestamp;
-  actualizadoEn: Timestamp;
+  /** Umbral para la alerta de stock bajo. */
+  stockMinimo: number;
+
+  creadoEn: number;
+  actualizadoEn: number;
 }
 
-// --- Pedidos ------------------------------------------------------------
+/** El producto tal como se envía al frente público: sin el costo. */
+export type ProductoPublico = Omit<Producto, "precioCompra">;
+
+// --- Pedidos ---------------------------------------------------------
 
 export interface PedidoItem {
   productoId: string;
@@ -124,11 +134,24 @@ export interface Pedido {
   estado: EstadoPedido;
   /** Evita descontar stock dos veces. */
   stockDescontado: boolean;
-  creadoEn: Timestamp;
-  actualizadoEn: Timestamp;
+  creadoEn: number;
+  actualizadoEn: number;
 }
 
-// --- Configuración de la tienda --------------------------------------------
+// --- Clientes (ligero, derivado de los pedidos) ------------------------
+
+export interface Cliente {
+  /** = teléfono. */
+  id: string;
+  nombre: string;
+  telefono: string;
+  totalPedidos: number;
+  totalGastado: number;
+  primerPedido: number;
+  ultimoPedido: number;
+}
+
+// --- Configuración de la tienda ---------------------------------------
 
 export interface Config {
   nombreTienda: string;
@@ -138,4 +161,9 @@ export interface Config {
   costoEnvio: number;
   mensajeBienvenida: string | null;
   logoUrl: string | null;
+  correo: string | null;
+  direccion: string | null;
+  instagram: string | null;
+  facebook: string | null;
+  tiktok: string | null;
 }

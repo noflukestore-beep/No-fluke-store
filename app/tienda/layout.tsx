@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import MarcoTienda from "@/components/tienda/MarcoTienda";
+import { obtenerCategorias } from "@/lib/firebase/catalogo";
 
 export const metadata: Metadata = {
   title: {
@@ -8,10 +9,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function TiendaLayout({
+export const revalidate = 60;
+
+export default async function TiendaLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <MarcoTienda>{children}</MarcoTienda>;
+  const categorias = await obtenerCategorias();
+  const nav = categorias.map((c) => ({ nombre: c.nombre, slug: c.slug }));
+  return <MarcoTienda categorias={nav}>{children}</MarcoTienda>;
 }

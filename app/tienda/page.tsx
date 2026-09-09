@@ -1,18 +1,21 @@
 import Link from "next/link";
 import TarjetaProducto from "@/components/tienda/TarjetaProducto";
-import { CATEGORIAS, DESTACADOS, OFERTAS } from "@/lib/tienda/demo";
+import {
+  obtenerCategorias,
+  obtenerDestacados,
+  obtenerOfertas,
+} from "@/lib/firebase/catalogo";
 
 export const metadata = { title: "Tienda" };
+export const revalidate = 60;
 
-const ICONO_CAT: Record<string, string> = {
-  perfumes: "🧴",
-  ropa: "🧥",
-  "t-shirts": "👕",
-  calzados: "👟",
-  accesorios: "🧢",
-};
+export default async function TiendaInicio() {
+  const [categorias, destacados, ofertas] = await Promise.all([
+    obtenerCategorias(),
+    obtenerDestacados(),
+    obtenerOfertas(),
+  ]);
 
-export default function TiendaInicio() {
   return (
     <div className="space-y-8">
       {/* Categorías — barra segmentada */}
@@ -24,13 +27,13 @@ export default function TiendaInicio() {
           >
             Todos
           </Link>
-          {CATEGORIAS.map((c) => (
+          {categorias.map((c) => (
             <Link
               key={c.slug}
               href={`/tienda/categoria/${c.slug}`}
               className="flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-white/60 transition-colors hover:bg-white/5 hover:text-white"
             >
-              <span aria-hidden>{ICONO_CAT[c.slug] ?? "•"}</span>
+              {c.icono && <span aria-hidden>{c.icono}</span>}
               {c.nombre}
             </Link>
           ))}
@@ -38,37 +41,45 @@ export default function TiendaInicio() {
       </section>
 
       {/* Ofertas */}
-      <section>
-        <div className="mb-3 flex items-end justify-between">
-          <h2 className="font-display text-lg font-extrabold uppercase tracking-tight">
-            🔥 Ofertas
-          </h2>
-          <Link
-            href="/tienda/ofertas"
-            className="text-xs font-semibold text-verde hover:underline"
-          >
-            Ver todas →
-          </Link>
-        </div>
-        <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {OFERTAS.map((p) => (
-            <div key={p.slug} className="w-44 shrink-0 sm:w-52">
-              <TarjetaProducto producto={p} />
-            </div>
-          ))}
-        </div>
-      </section>
+      {ofertas.length > 0 && (
+        <section>
+          <div className="mb-3 flex items-end justify-between">
+            <h2 className="font-display text-lg font-extrabold uppercase tracking-tight">
+              🔥 Ofertas
+            </h2>
+            <Link
+              href="/tienda/ofertas"
+              className="text-xs font-semibold text-verde hover:underline"
+            >
+              Ver todas →
+            </Link>
+          </div>
+          <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {ofertas.map((p) => (
+              <div key={p.id} className="w-44 shrink-0 sm:w-52">
+                <TarjetaProducto producto={p} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Destacados */}
       <section>
         <h2 className="mb-3 font-display text-lg font-extrabold uppercase tracking-tight">
           Destacados
         </h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {DESTACADOS.map((p) => (
-            <TarjetaProducto key={p.slug} producto={p} />
-          ))}
-        </div>
+        {destacados.length === 0 ? (
+          <p className="py-12 text-center text-sm text-white/40">
+            Todavía no hay productos destacados.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {destacados.map((p) => (
+              <TarjetaProducto key={p.id} producto={p} />
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

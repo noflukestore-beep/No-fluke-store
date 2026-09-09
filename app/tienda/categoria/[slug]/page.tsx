@@ -1,9 +1,16 @@
 import { notFound } from "next/navigation";
 import TarjetaProducto from "@/components/tienda/TarjetaProducto";
-import { CATEGORIAS, PRODUCTOS } from "@/lib/tienda/demo";
+import {
+  obtenerCategoria,
+  obtenerCategorias,
+  obtenerPorCategoria,
+} from "@/lib/firebase/catalogo";
 
-export function generateStaticParams() {
-  return CATEGORIAS.map((c) => ({ slug: c.slug }));
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const categorias = await obtenerCategorias();
+  return categorias.map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({
@@ -12,7 +19,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const cat = CATEGORIAS.find((c) => c.slug === slug);
+  const cat = await obtenerCategoria(slug);
   return { title: cat?.nombre ?? "Categoría" };
 }
 
@@ -22,10 +29,11 @@ export default async function CategoriaPagina({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const categoria = CATEGORIAS.find((c) => c.slug === slug);
+  const [categoria, productos] = await Promise.all([
+    obtenerCategoria(slug),
+    obtenerPorCategoria(slug),
+  ]);
   if (!categoria) notFound();
-
-  const productos = PRODUCTOS.filter((p) => p.categoriaSlug === slug);
 
   return (
     <div>
@@ -44,7 +52,7 @@ export default async function CategoriaPagina({
       ) : (
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {productos.map((p) => (
-            <TarjetaProducto key={p.slug} producto={p} />
+            <TarjetaProducto key={p.id} producto={p} />
           ))}
         </div>
       )}

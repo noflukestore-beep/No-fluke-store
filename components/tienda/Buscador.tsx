@@ -1,10 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { CATEGORIAS } from "@/lib/tienda/demo";
-
-const OPCIONES = [{ nombre: "Todas las categorías", slug: "" }, ...CATEGORIAS];
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { CategoriaNav } from "@/components/tienda/MarcoTienda";
 
 function Lupa({ className = "" }: { className?: string }) {
   return (
@@ -15,12 +13,21 @@ function Lupa({ className = "" }: { className?: string }) {
   );
 }
 
-export default function Buscador() {
+export default function Buscador({
+  categorias,
+}: {
+  categorias: CategoriaNav[];
+}) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("");
   const [abierto, setAbierto] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  const OPCIONES = useMemo(
+    () => [{ nombre: "Todas las categorías", slug: "" }, ...categorias],
+    [categorias],
+  );
 
   useEffect(() => {
     if (!abierto) return;

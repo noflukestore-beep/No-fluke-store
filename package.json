@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "hacer-admin": "tsx scripts/hacer-admin.ts",
+    "sembrar": "tsx scripts/sembrar-demo.ts",
     "deploy:rules": "firebase deploy --only firestore:rules,storage:rules,firestore:indexes"
   },
   "dependencies": {

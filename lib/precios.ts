@@ -29,7 +29,7 @@ export function precioEfectivo(
 ): PrecioResultado {
   const ofertaVigente =
     producto.precioOferta != null &&
-    (!producto.ofertaHasta || producto.ofertaHasta.toDate() > new Date());
+    (producto.ofertaHasta == null || producto.ofertaHasta > Date.now());
 
   if (
     producto.precioMayor != null &&

@@ -10,6 +10,7 @@ import {
   normalizarConfig,
   type Categoria,
   type Config,
+  type MovimientoInventario,
   type Producto,
 } from "@/lib/firebase/tipos";
 
@@ -99,4 +100,30 @@ export async function listarCategoriasAdmin(): Promise<Categoria[]> {
 export async function obtenerConfigAdmin(): Promise<Config> {
   const snap = await adminDb.doc("config/tienda").get();
   return normalizarConfig(snap.exists ? snap.data() : undefined);
+}
+
+export async function listarMovimientos(
+  limite = 120,
+): Promise<MovimientoInventario[]> {
+  const snap = await adminDb
+    .collection("movimientos")
+    .orderBy("creadoEn", "desc")
+    .limit(limite)
+    .get();
+  return snap.docs.map((doc) => {
+    const d = doc.data();
+    return {
+      id: doc.id,
+      productoId: d.productoId ?? "",
+      productoNombre: d.productoNombre ?? "",
+      varianteId: d.varianteId ?? "",
+      varianteDesc: d.varianteDesc ?? "Único",
+      tipo: d.tipo ?? "ajuste",
+      cantidad: typeof d.cantidad === "number" ? d.cantidad : 0,
+      stockAntes: typeof d.stockAntes === "number" ? d.stockAntes : 0,
+      stockDespues: typeof d.stockDespues === "number" ? d.stockDespues : 0,
+      motivo: d.motivo ?? null,
+      creadoEn: aMillis(d.creadoEn) ?? 0,
+    };
+  });
 }

@@ -138,6 +138,27 @@ export interface Pedido {
   actualizadoEn: number;
 }
 
+// --- Inventario ------------------------------------------------------
+
+export type TipoMovimiento = "entrada" | "salida" | "ajuste" | "venta";
+
+/** Una línea de la bitácora de inventario. Cada ajuste deja una. */
+export interface MovimientoInventario {
+  id: string;
+  productoId: string;
+  productoNombre: string;
+  varianteId: string;
+  /** Ej. "M / Negro" o "Único". */
+  varianteDesc: string;
+  tipo: TipoMovimiento;
+  /** Con signo: positivo entra, negativo sale. */
+  cantidad: number;
+  stockAntes: number;
+  stockDespues: number;
+  motivo: string | null;
+  creadoEn: number;
+}
+
 // --- Clientes (ligero, derivado de los pedidos) ------------------------
 
 export interface Cliente {

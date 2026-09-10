@@ -19,6 +19,11 @@ export interface VarianteInput {
   activo: boolean;
 }
 
+export interface ImagenInput {
+  url: string;
+  alt: string;
+}
+
 export interface ProductoInput {
   id?: string;
   nombre: string;
@@ -39,6 +44,7 @@ export interface ProductoInput {
   nuevoIngreso: boolean;
   stockMinimo: number;
   variantes: VarianteInput[];
+  imagenes: ImagenInput[];
 }
 
 export interface Resultado {
@@ -63,12 +69,17 @@ function validar(p: ProductoInput): string | null {
       return "El precio por mayor debe ser menor que la oferta / el precio de venta.";
     }
   }
-  if (p.variantes.length === 0) return "Agrega al menos una variante.";
-  for (const v of p.variantes) {
-    if (!v.talla.trim() && !v.color.trim()) {
-      return "Cada variante necesita talla o color.";
+  if (p.variantes.length === 0) return "Agrega al menos una fila de existencia.";
+  // Se permite una sola fila sin talla ni color (producto de talla única).
+  if (p.variantes.length > 1) {
+    for (const v of p.variantes) {
+      if (!v.talla.trim() && !v.color.trim()) {
+        return "Quita las filas vacías o ponles talla o color.";
+      }
     }
-    if (v.stock < 0) return "El stock no puede ser negativo.";
+  }
+  for (const v of p.variantes) {
+    if (v.stock < 0) return "La existencia no puede ser negativa.";
   }
   return null;
 }
@@ -113,6 +124,15 @@ export async function guardarProducto(
   }));
   const stockTotal = variantes.reduce((s, v) => s + v.stock, 0);
 
+  const imagenes = entrada.imagenes
+    .map((im, i) => ({
+      path: "",
+      url: im.url.trim(),
+      alt: im.alt.trim(),
+      orden: i,
+    }))
+    .filter((im) => /^https?:\/\/\S+/i.test(im.url));
+
   const datos = {
     nombre: entrada.nombre.trim(),
     slug,
@@ -137,6 +157,7 @@ export async function guardarProducto(
     destacado: entrada.destacado,
     nuevoIngreso: entrada.nuevoIngreso,
     variantes,
+    imagenes,
     keywords: generarKeywords(entrada.nombre, entrada.marca, cat.nombre),
     stockTotal,
     stockMinimo: Math.max(0, Math.round(entrada.stockMinimo || 3)),
@@ -149,7 +170,6 @@ export async function guardarProducto(
   } else {
     const ref = await adminDb.collection("productos").add({
       ...datos,
-      imagenes: [],
       creadoEn: FieldValue.serverTimestamp(),
     });
     id = ref.id;

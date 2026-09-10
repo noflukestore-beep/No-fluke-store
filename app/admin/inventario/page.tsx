@@ -1,32 +1,12 @@
-import TablaInventario, {
-  type ArticuloInventario,
-} from "@/components/admin/TablaInventario";
+import NavInventario from "@/components/admin/NavInventario";
+import TablaExistencias from "@/components/admin/TablaExistencias";
 import { listarProductosAdmin } from "@/lib/firebase/admin-catalogo";
 
-export const metadata = { title: "Inventario · Panel" };
+export const metadata = { title: "Existencias · Inventario" };
 export const dynamic = "force-dynamic";
 
-export default async function AdminInventario() {
+export default async function AdminExistencias() {
   const productos = await listarProductosAdmin();
-
-  const articulos: ArticuloInventario[] = productos
-    .flatMap((p) =>
-      p.variantes.map((v) => ({
-        productoId: p.id,
-        varianteId: v.id,
-        nombre: p.nombre,
-        descripcion: p.descripcion,
-        marca: p.marca,
-        categoriaNombre: p.categoriaNombre,
-        sku: v.sku || p.sku || "",
-        talla: v.talla,
-        color: v.color,
-        stock: v.stock,
-        stockMinimo: p.stockMinimo,
-        activo: p.activo && v.activo,
-      })),
-    )
-    .sort((a, b) => a.stock - b.stock || a.nombre.localeCompare(b.nombre));
 
   return (
     <div>
@@ -34,10 +14,10 @@ export default async function AdminInventario() {
         Inventario
       </h1>
       <p className="mb-5 mt-1 text-sm text-white/50">
-        Existencia de cada artículo. Registra entradas y salidas y queda la
-        bitácora.
+        Existencia, fecha de registro y precios de cada producto.
       </p>
-      <TablaInventario articulos={articulos} />
+      <NavInventario />
+      <TablaExistencias productos={productos} />
     </div>
   );
 }

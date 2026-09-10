@@ -1,4 +1,4 @@
-import Link from "next/link";
+import NavInventario from "@/components/admin/NavInventario";
 import TablaMovimientos from "@/components/admin/TablaMovimientos";
 import { listarMovimientos } from "@/lib/firebase/admin-catalogo";
 
@@ -10,15 +10,13 @@ export default async function MovimientosInventario() {
 
   return (
     <div>
-      <Link
-        href="/admin/inventario"
-        className="text-sm text-white/50 hover:text-white"
-      >
-        ← Inventario
-      </Link>
-      <h1 className="mb-5 mt-1 font-display text-2xl font-extrabold tracking-tight md:text-3xl">
-        Movimientos de inventario
+      <h1 className="font-display text-2xl font-extrabold tracking-tight md:text-3xl">
+        Inventario
       </h1>
+      <p className="mb-5 mt-1 text-sm text-white/50">
+        Historial de cada entrada, salida y ajuste.
+      </p>
+      <NavInventario />
       <TablaMovimientos movimientos={movimientos} />
     </div>
   );

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { ajustarStock, type ModoAjuste } from "@/actions/inventario";
@@ -71,20 +70,12 @@ export default function TablaInventario({
         <Kpi etiqueta="Agotados" valor={agotados} acento={agotados > 0 ? "rose" : undefined} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Buscar por nombre, descripción, ID, SKU, talla…"
-          className="w-full max-w-sm rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-verde/60 focus:outline-none"
-        />
-        <Link
-          href="/admin/inventario/movimientos"
-          className="text-sm font-semibold text-verde hover:underline"
-        >
-          Ver movimientos →
-        </Link>
-      </div>
+      <input
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        placeholder="Buscar por nombre, descripción, ID, SKU, talla…"
+        className="w-full max-w-sm rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-verde/60 focus:outline-none"
+      />
 
       {lista.length === 0 ? (
         <p className="rounded-xl border border-white/10 bg-white/[0.02] px-3 py-10 text-center text-sm text-white/40">

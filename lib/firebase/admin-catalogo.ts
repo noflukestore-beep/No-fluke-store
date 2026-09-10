@@ -6,7 +6,12 @@
 import "server-only";
 import type { DocumentData } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase/admin";
-import type { Categoria, Producto } from "@/lib/firebase/tipos";
+import {
+  normalizarConfig,
+  type Categoria,
+  type Config,
+  type Producto,
+} from "@/lib/firebase/tipos";
 
 function aMillis(v: unknown): number | null {
   if (v == null) return null;
@@ -89,4 +94,9 @@ export async function listarCategoriasAdmin(): Promise<Categoria[]> {
     .orderBy("orden", "asc")
     .get();
   return snap.docs.map((doc) => mapearCategoria(doc.id, doc.data()));
+}
+
+export async function obtenerConfigAdmin(): Promise<Config> {
+  const snap = await adminDb.doc("config/tienda").get();
+  return normalizarConfig(snap.exists ? snap.data() : undefined);
 }

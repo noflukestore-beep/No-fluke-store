@@ -12,28 +12,15 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import type { QueryDocumentSnapshot } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase/admin";
-import type {
-  Categoria,
-  Config,
-  Producto,
-  ProductoPublico,
+import {
+  normalizarConfig,
+  type Categoria,
+  type Config,
+  type Producto,
+  type ProductoPublico,
 } from "@/lib/firebase/tipos";
 import { precioEfectivo } from "@/lib/precios";
 import { quitarAcentos } from "@/lib/texto";
-
-const CONFIG_POR_DEFECTO: Config = {
-  nombreTienda: "No Fluke Store",
-  whatsapp: "",
-  moneda: "DOP",
-  costoEnvio: 0,
-  mensajeBienvenida: null,
-  logoUrl: null,
-  correo: null,
-  direccion: null,
-  instagram: null,
-  facebook: null,
-  tiktok: null,
-};
 
 // --- Serialización -----------------------------------------------------
 
@@ -192,8 +179,7 @@ export async function obtenerConfig(): Promise<Config> {
   const leer = unstable_cache(
     async () => {
       const snap = await adminDb.doc("config/tienda").get();
-      if (!snap.exists) return CONFIG_POR_DEFECTO;
-      return { ...CONFIG_POR_DEFECTO, ...snap.data() } as Config;
+      return normalizarConfig(snap.exists ? snap.data() : undefined);
     },
     ["config-tienda-v1"],
     { revalidate: 300, tags: ["catalogo", "config"] },

@@ -167,3 +167,46 @@ export interface Config {
   facebook: string | null;
   tiktok: string | null;
 }
+
+export const CONFIG_POR_DEFECTO: Config = {
+  nombreTienda: "No Fluke Store",
+  whatsapp: "",
+  moneda: "DOP",
+  costoEnvio: 0,
+  mensajeBienvenida: null,
+  logoUrl: null,
+  correo: null,
+  direccion: null,
+  instagram: null,
+  facebook: null,
+  tiktok: null,
+};
+
+/**
+ * Convierte el documento crudo `config/tienda` en un `Config` seguro:
+ * solo los campos conocidos y serializables (nada de `Timestamp`, que
+ * rompe el paso a componentes cliente).
+ */
+export function normalizarConfig(
+  d: Record<string, unknown> | undefined,
+): Config {
+  const texto = (v: unknown) =>
+    typeof v === "string" && v.trim() ? v : null;
+  return {
+    nombreTienda:
+      typeof d?.nombreTienda === "string" && d.nombreTienda.trim()
+        ? d.nombreTienda
+        : CONFIG_POR_DEFECTO.nombreTienda,
+    whatsapp: typeof d?.whatsapp === "string" ? d.whatsapp : "",
+    moneda:
+      typeof d?.moneda === "string" ? d.moneda : CONFIG_POR_DEFECTO.moneda,
+    costoEnvio: typeof d?.costoEnvio === "number" ? d.costoEnvio : 0,
+    mensajeBienvenida: texto(d?.mensajeBienvenida),
+    logoUrl: texto(d?.logoUrl),
+    correo: texto(d?.correo),
+    direccion: texto(d?.direccion),
+    instagram: texto(d?.instagram),
+    facebook: texto(d?.facebook),
+    tiktok: texto(d?.tiktok),
+  };
+}

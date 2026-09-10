@@ -15,9 +15,6 @@ import { formatearRD, porcentajeDescuento } from "@/lib/precios";
 const entrada =
   "w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-verde/60 focus:outline-none";
 
-const TALLAS_LETRA = ["S", "M", "L", "XL", "XXL"];
-const TALLAS_NUMERO = ["38", "39", "40", "41", "42", "43", "44", "45"];
-
 /** epoch millis -> "YYYY-MM-DD" para <input type=date>. */
 function aFecha(millis: number | null): string {
   if (!millis) return "";
@@ -240,21 +237,13 @@ export default function FormularioProducto({
   }
 
   // --- Tallas: acciones ----------------------------------------
-  function alternarTalla(t: string) {
-    setVariantes((prev) => {
-      const tiene = prev.some((v) => v.talla === t);
-      if (tiene) {
-        const resto = prev.filter((v) => v.talla !== t);
-        return resto.length ? resto : [nuevaVariante()];
-      }
-      const limpio = prev.filter((v) => v.talla || v.color);
-      return [...limpio, nuevaVariante(t)];
-    });
-  }
   function agregarTallaLibre() {
     const t = tallaLibre.trim();
     if (!t || tallasElegidas.has(t)) return;
-    alternarTalla(t);
+    setVariantes((prev) => {
+      const limpio = prev.filter((v) => v.talla || v.color);
+      return [...limpio, nuevaVariante(t)];
+    });
     setTallaLibre("");
   }
   function editarVariante(
@@ -621,22 +610,11 @@ export default function FormularioProducto({
 
       {/* Tallas y existencia */}
       <Seccion titulo="Tallas y existencia">
-        <div className="space-y-3">
+        <div className="space-y-2">
           <p className="text-xs font-medium text-white/50">
-            Elige las tallas de este producto
+            Escribe cada talla y pulsa Añadir. Déjalo vacío si el producto
+            es de talla única.
           </p>
-          <GrupoTallas
-            titulo="Ropa"
-            opciones={TALLAS_LETRA}
-            elegidas={tallasElegidas}
-            onToggle={alternarTalla}
-          />
-          <GrupoTallas
-            titulo="Calzado"
-            opciones={TALLAS_NUMERO}
-            elegidas={tallasElegidas}
-            onToggle={alternarTalla}
-          />
           <div className="flex gap-2">
             <input
               value={tallaLibre}
@@ -647,15 +625,15 @@ export default function FormularioProducto({
                   agregarTallaLibre();
                 }
               }}
-              placeholder="Otra talla (ej. Única, 3XL)"
+              placeholder="Ej. S, M, L, 38, Única…"
               className={`${entrada} sm:max-w-xs`}
             />
             <button
               type="button"
               onClick={agregarTallaLibre}
-              className="shrink-0 rounded-lg border border-white/15 px-3 text-sm font-semibold text-white/80 hover:bg-white/5"
+              className="shrink-0 rounded-lg border border-white/15 px-4 text-sm font-semibold text-white/80 hover:bg-white/5"
             >
-              Añadir
+              Añadir talla
             </button>
           </div>
         </div>
@@ -681,8 +659,8 @@ export default function FormularioProducto({
               />
             </Campo>
             <p className="mt-1 text-xs text-white/40">
-              Si el producto viene en varias tallas o colores, elígelos
-              arriba y pon la existencia de cada uno.
+              Si viene en varias tallas o colores, agrégalas arriba y pon la
+              existencia de cada una.
             </p>
           </div>
         ) : (
@@ -821,43 +799,6 @@ export default function FormularioProducto({
         </div>
       </div>
     </form>
-  );
-}
-
-function GrupoTallas({
-  titulo,
-  opciones,
-  elegidas,
-  onToggle,
-}: {
-  titulo: string;
-  opciones: string[];
-  elegidas: Set<string>;
-  onToggle: (t: string) => void;
-}) {
-  return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className="mr-1 w-14 shrink-0 text-[11px] uppercase tracking-wide text-white/35">
-        {titulo}
-      </span>
-      {opciones.map((t) => {
-        const on = elegidas.has(t);
-        return (
-          <button
-            key={t}
-            type="button"
-            onClick={() => onToggle(t)}
-            className={`min-w-9 rounded-md border px-2.5 py-1.5 text-sm font-semibold transition-colors ${
-              on
-                ? "border-verde bg-verde text-[#04140c]"
-                : "border-white/15 text-white/70 hover:bg-white/5"
-            }`}
-          >
-            {t}
-          </button>
-        );
-      })}
-    </div>
   );
 }
 

@@ -19,6 +19,7 @@ export default function TablaCategorias({
   const router = useRouter();
   const [pendiente, iniciar] = useTransition();
   const [confirmando, setConfirmando] = useState<string | null>(null);
+  const [moverA, setMoverA] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   function toggle(c: Categoria) {
@@ -31,11 +32,12 @@ export default function TablaCategorias({
   function borrar(c: Categoria) {
     setError(null);
     iniciar(async () => {
-      const r = await eliminarCategoria(c.id);
+      const r = await eliminarCategoria(c.id, moverA || undefined);
       if (!r.ok) {
         setError(r.error ?? `No se pudo eliminar "${c.nombre}".`);
       }
       setConfirmando(null);
+      setMoverA("");
       router.refresh();
     });
   }
@@ -96,27 +98,53 @@ export default function TablaCategorias({
                   </td>
                   <td className="px-3 py-2.5 text-right">
                     {confirmando === c.id ? (
-                      <span className="inline-flex items-center gap-2">
-                        <span className="text-xs text-white/60">
-                          ¿Eliminar?
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => borrar(c)}
-                          disabled={pendiente}
-                          className="rounded-md bg-rose-500/90 px-2.5 py-1 text-xs font-bold text-white hover:bg-rose-500 disabled:opacity-60"
-                        >
-                          {pendiente ? "Eliminando…" : "Sí, eliminar"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setConfirmando(null)}
-                          disabled={pendiente}
-                          className="rounded-md px-2 py-1 text-xs font-semibold text-white/60 hover:bg-white/5"
-                        >
-                          Cancelar
-                        </button>
-                      </span>
+                      <div className="inline-flex flex-col items-end gap-1.5">
+                        {enUso && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-white/50">
+                              {conteos[c.id]} producto(s) →
+                            </span>
+                            <select
+                              value={moverA}
+                              onChange={(e) => setMoverA(e.target.value)}
+                              className="rounded-md border border-white/10 bg-white/5 px-1.5 py-1 text-xs text-white focus:border-verde/60 focus:outline-none"
+                            >
+                              <option value="">Sin categoría</option>
+                              {categorias
+                                .filter((o) => o.id !== c.id)
+                                .map((o) => (
+                                  <option key={o.id} value={o.id}>
+                                    {o.nombre}
+                                  </option>
+                                ))}
+                            </select>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-white/60">
+                            {enUso ? "¿Mover y eliminar?" : "¿Eliminar?"}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => borrar(c)}
+                            disabled={pendiente}
+                            className="rounded-md bg-rose-500/90 px-2.5 py-1 text-xs font-bold text-white hover:bg-rose-500 disabled:opacity-60"
+                          >
+                            {pendiente ? "Eliminando…" : "Sí, eliminar"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setConfirmando(null);
+                              setMoverA("");
+                            }}
+                            disabled={pendiente}
+                            className="rounded-md px-2 py-1 text-xs font-semibold text-white/60 hover:bg-white/5"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
                     ) : (
                       <span className="inline-flex items-center">
                         <Link
@@ -129,25 +157,11 @@ export default function TablaCategorias({
                           type="button"
                           onClick={() => {
                             setError(null);
-                            if (enUso) {
-                              setError(
-                                `"${c.nombre}" tiene ${conteos[c.id]} producto(s). Muévelos a otra categoría antes de eliminarla.`,
-                              );
-                              return;
-                            }
+                            setMoverA("");
                             setConfirmando(c.id);
                           }}
                           disabled={pendiente}
-                          title={
-                            enUso
-                              ? "Tiene productos asignados"
-                              : "Eliminar categoría"
-                          }
-                          className={`ml-1 rounded-md px-2 py-1 font-medium ${
-                            enUso
-                              ? "text-white/25"
-                              : "text-white/55 hover:bg-white/5 hover:text-rose-400"
-                          }`}
+                          className="ml-1 rounded-md px-2 py-1 font-medium text-white/55 hover:bg-white/5 hover:text-rose-400"
                         >
                           Eliminar
                         </button>

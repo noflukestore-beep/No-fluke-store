@@ -112,18 +112,42 @@ export async function alternarActivaCategoria(
   return { ok: true, id };
 }
 
-export async function eliminarCategoria(id: string): Promise<Resultado> {
-  const enUso = await adminDb
+/**
+ * Elimina una categoría. Si tiene productos, se reasignan: a la categoría
+ * `moverA` si se indica una válida, o si no quedan "sin categoría".
+ */
+export async function eliminarCategoria(
+  id: string,
+  moverA?: string,
+): Promise<Resultado> {
+  const productos = await adminDb
     .collection("productos")
     .where("categoriaId", "==", id)
-    .limit(1)
     .get();
-  if (!enUso.empty) {
-    return {
-      ok: false,
-      error: "Tiene productos asignados. Muévelos a otra categoría primero.",
-    };
+
+  if (!productos.empty) {
+    let destino: { id: string; nombre: string; slug: string } | null = null;
+    if (moverA && moverA !== id) {
+      const catSnap = await adminDb.collection("categorias").doc(moverA).get();
+      if (!catSnap.exists) {
+        return { ok: false, error: "La categoría destino ya no existe." };
+      }
+      const c = catSnap.data()!;
+      destino = { id: moverA, nombre: c.nombre ?? "", slug: c.slug ?? moverA };
+    }
+
+    const lote = adminDb.batch();
+    productos.docs.forEach((d) =>
+      lote.update(d.ref, {
+        categoriaId: destino ? destino.id : "",
+        categoriaNombre: destino ? destino.nombre : "Sin categoría",
+        categoriaSlug: destino ? destino.slug : "",
+        actualizadoEn: FieldValue.serverTimestamp(),
+      }),
+    );
+    await lote.commit();
   }
+
   await adminDb.collection("categorias").doc(id).delete();
   refrescar();
   return { ok: true };

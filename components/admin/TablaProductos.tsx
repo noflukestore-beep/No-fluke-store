@@ -15,6 +15,8 @@ export default function TablaProductos({
   const router = useRouter();
   const [q, setQ] = useState("");
   const [pendiente, iniciar] = useTransition();
+  const [confirmando, setConfirmando] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const lista = productos.filter((p) => {
     const t = `${p.nombre} ${p.marca} ${p.sku ?? ""} ${p.categoriaNombre}`.toLowerCase();
@@ -28,9 +30,11 @@ export default function TablaProductos({
     });
   }
   function borrar(p: Producto) {
-    if (!confirm(`¿Eliminar "${p.nombre}"? No se puede deshacer.`)) return;
+    setError(null);
     iniciar(async () => {
-      await eliminarProducto(p.id);
+      const r = await eliminarProducto(p.id);
+      if (!r.ok) setError(r.error ?? `No se pudo eliminar "${p.nombre}".`);
+      setConfirmando(null);
       router.refresh();
     });
   }
@@ -43,6 +47,12 @@ export default function TablaProductos({
         placeholder="Buscar por nombre, marca, SKU…"
         className="mb-3 w-full max-w-sm rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-verde/60 focus:outline-none"
       />
+
+      {error && (
+        <p className="mb-3 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-300">
+          {error}
+        </p>
+      )}
 
       <div className="overflow-x-auto rounded-xl border border-white/10">
         <table className="w-full min-w-[640px] text-sm">
@@ -113,20 +123,47 @@ export default function TablaProductos({
                     </button>
                   </td>
                   <td className="px-3 py-2.5 text-right">
-                    <Link
-                      href={`/admin/productos/${p.id}`}
-                      className="rounded-md px-2 py-1 text-verde hover:bg-white/5"
-                    >
-                      Editar
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => borrar(p)}
-                      disabled={pendiente}
-                      className="ml-1 rounded-md px-2 py-1 text-white/40 hover:bg-white/5 hover:text-rose-400"
-                    >
-                      Eliminar
-                    </button>
+                    {confirmando === p.id ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="text-xs text-white/60">¿Eliminar?</span>
+                        <button
+                          type="button"
+                          onClick={() => borrar(p)}
+                          disabled={pendiente}
+                          className="rounded-md bg-rose-500/90 px-2.5 py-1 text-xs font-bold text-white hover:bg-rose-500 disabled:opacity-60"
+                        >
+                          {pendiente ? "Eliminando…" : "Sí, eliminar"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmando(null)}
+                          disabled={pendiente}
+                          className="rounded-md px-2 py-1 text-xs font-semibold text-white/60 hover:bg-white/5"
+                        >
+                          Cancelar
+                        </button>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center">
+                        <Link
+                          href={`/admin/productos/${p.id}`}
+                          className="rounded-md px-2 py-1 text-verde hover:bg-white/5"
+                        >
+                          Editar
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setError(null);
+                            setConfirmando(p.id);
+                          }}
+                          disabled={pendiente}
+                          className="ml-1 rounded-md px-2 py-1 text-white/55 hover:bg-white/5 hover:text-rose-400"
+                        >
+                          Eliminar
+                        </button>
+                      </span>
+                    )}
                   </td>
                 </tr>
               );

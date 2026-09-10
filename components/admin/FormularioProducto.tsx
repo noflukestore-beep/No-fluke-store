@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
+import { subirImagenProducto } from "@/actions/imagenes";
 import {
   guardarProducto,
   type ImagenInput,
@@ -79,9 +80,15 @@ export default function FormularioProducto({
 
   // --- Fotos --------------------------------------------------------
   const [imagenes, setImagenes] = useState<ImagenInput[]>(
-    producto?.imagenes?.map((im) => ({ url: im.url, alt: im.alt })) ?? [],
+    producto?.imagenes?.map((im) => ({
+      url: im.url,
+      alt: im.alt,
+      path: im.path,
+    })) ?? [],
   );
-  const [urlNueva, setUrlNueva] = useState("");
+  const [subiendo, setSubiendo] = useState(0);
+  const [errorFoto, setErrorFoto] = useState<string | null>(null);
+  const inputFotos = useRef<HTMLInputElement>(null);
 
   // --- Precio y ganancia ------------------------------------------
   const [precioCompra, setPrecioCompra] = useState(
@@ -183,11 +190,44 @@ export default function FormularioProducto({
     variantes.length === 1 && !variantes[0].talla && !variantes[0].color;
 
   // --- Fotos: acciones ------------------------------------------
-  function agregarImagen() {
-    const url = urlNueva.trim();
-    if (!/^https?:\/\/\S+/i.test(url)) return;
-    setImagenes((prev) => [...prev, { url, alt: "" }]);
-    setUrlNueva("");
+  async function subirArchivos(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setErrorFoto(null);
+    const lista = Array.from(files);
+    setSubiendo((n) => n + lista.length);
+    const { default: comprimir } = await import("browser-image-compression");
+    for (const file of lista) {
+      try {
+        let archivo: File = file;
+        try {
+          archivo = await comprimir(file, {
+            maxSizeMB: 0.35,
+            maxWidthOrHeight: 1400,
+            useWebWorker: true,
+            fileType: "image/webp",
+          });
+        } catch {
+          // Si la compresión falla, se sube el original.
+        }
+        const fd = new FormData();
+        fd.append("archivo", archivo, "foto.webp");
+        fd.append("productoId", producto?.id ?? "");
+        const r = await subirImagenProducto(fd);
+        if (r.ok && r.url) {
+          setImagenes((prev) => [
+            ...prev,
+            { url: r.url as string, alt: "", path: r.path },
+          ]);
+        } else {
+          setErrorFoto(r.error ?? "No se pudo subir una foto.");
+        }
+      } catch {
+        setErrorFoto("No se pudo subir una foto.");
+      } finally {
+        setSubiendo((n) => Math.max(0, n - 1));
+      }
+    }
+    if (inputFotos.current) inputFotos.current.value = "";
   }
   function moverImagen(i: number, dir: -1 | 1) {
     setImagenes((prev) => {
@@ -260,7 +300,11 @@ export default function FormularioProducto({
         stock: Number(v.stock) || 0,
         precioExtra: Number(v.precioExtra) || 0,
       })),
-      imagenes: imagenes.map((im) => ({ url: im.url.trim(), alt: im.alt.trim() })),
+      imagenes: imagenes.map((im) => ({
+        url: im.url.trim(),
+        alt: im.alt.trim(),
+        path: im.path,
+      })),
     };
     iniciar(async () => {
       const r = await guardarProducto(datos);
@@ -422,31 +466,36 @@ export default function FormularioProducto({
           </ul>
         )}
 
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <input
-            value={urlNueva}
-            onChange={(e) => setUrlNueva(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                agregarImagen();
-              }
-            }}
-            placeholder="https://…  (enlace de la imagen)"
-            className={entrada}
-          />
+        <input
+          ref={inputFotos}
+          type="file"
+          accept="image/*"
+          multiple
+          hidden
+          onChange={(e) => subirArchivos(e.target.files)}
+        />
+        <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
-            onClick={agregarImagen}
-            className="shrink-0 rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-white/80 hover:bg-white/5"
+            onClick={() => inputFotos.current?.click()}
+            disabled={subiendo > 0}
+            className="rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-white/80 hover:bg-white/5 disabled:opacity-60"
           >
-            Agregar foto
+            {subiendo > 0 ? `Subiendo… (${subiendo})` : "Agregar fotos"}
           </button>
+          {imagenes.length > 0 && (
+            <span className="text-xs text-white/40">
+              {imagenes.length}{" "}
+              {imagenes.length === 1 ? "foto" : "fotos"}
+            </span>
+          )}
         </div>
+        {errorFoto && (
+          <p className="text-sm font-semibold text-rose-400">{errorFoto}</p>
+        )}
         <p className="text-xs text-white/40">
-          La primera foto es la portada. Por ahora se agregan por enlace
-          (Instagram, Google Drive público, etc.). La subida de archivos
-          desde el teléfono se activa cuando habilites Firebase Storage.
+          La primera foto es la portada. Puedes subir varias, desde el celular
+          o la computadora; se comprimen solas antes de guardar.
         </p>
       </Seccion>
 

@@ -19,6 +19,7 @@ import {
 } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 
 if (typeof window !== "undefined") {
   throw new Error(
@@ -40,6 +41,8 @@ function crearAppAdmin(): App {
 
   return initializeApp({
     credential: cert({ projectId, clientEmail, privateKey }),
+    // El bucket no es secreto; se usa para subir fotos de producto.
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   });
 }
 
@@ -48,3 +51,8 @@ const appAdmin: App = getApps().length ? getApps()[0]! : crearAppAdmin();
 
 export const adminAuth = getAuth(appAdmin);
 export const adminDb = getFirestore(appAdmin);
+
+/** Bucket de Storage para las fotos de producto (`productos/<id>/<archivo>`). */
+export function bucketAdmin() {
+  return getStorage(appAdmin).bucket();
+}

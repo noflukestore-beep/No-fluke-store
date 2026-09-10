@@ -5,6 +5,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { adminDb } from "@/lib/firebase/admin";
 import type { Genero } from "@/lib/firebase/tipos";
 import { generarKeywords, generarSlug } from "@/lib/texto";
+import { borrarImagenProducto } from "./imagenes";
 
 // TODO (login admin): verificar sesión + claim rol=admin al inicio de cada
 // acción. Los Server Actions son alcanzables por POST directo.
@@ -22,6 +23,8 @@ export interface VarianteInput {
 export interface ImagenInput {
   url: string;
   alt: string;
+  /** Ruta en Storage; vacía si la imagen vino por enlace. */
+  path?: string;
 }
 
 export interface ProductoInput {
@@ -126,7 +129,7 @@ export async function guardarProducto(
 
   const imagenes = entrada.imagenes
     .map((im, i) => ({
-      path: "",
+      path: im.path?.trim() || "",
       url: im.url.trim(),
       alt: im.alt.trim(),
       orden: i,
@@ -166,6 +169,17 @@ export async function guardarProducto(
 
   let id = entrada.id;
   if (id) {
+    // Borra de Storage las fotos que se quitaron en esta edición.
+    const previo = await adminDb.collection("productos").doc(id).get();
+    const pathsAntes: string[] = (previo.data()?.imagenes ?? [])
+      .map((im: { path?: string }) => im?.path)
+      .filter(Boolean);
+    const pathsAhora = new Set(imagenes.map((im) => im.path).filter(Boolean));
+    await Promise.all(
+      pathsAntes
+        .filter((p) => !pathsAhora.has(p))
+        .map((p) => borrarImagenProducto(p)),
+    );
     await adminDb.collection("productos").doc(id).update(datos);
   } else {
     const ref = await adminDb.collection("productos").add({
@@ -194,6 +208,11 @@ export async function alternarActivo(
 }
 
 export async function eliminarProducto(id: string): Promise<Resultado> {
+  const snap = await adminDb.collection("productos").doc(id).get();
+  const paths: string[] = (snap.data()?.imagenes ?? [])
+    .map((im: { path?: string }) => im?.path)
+    .filter(Boolean);
+  await Promise.all(paths.map((p) => borrarImagenProducto(p)));
   await adminDb.collection("productos").doc(id).delete();
   revalidateTag("catalogo", "max");
   revalidatePath("/admin/productos");

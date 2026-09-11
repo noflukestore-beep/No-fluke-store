@@ -10,6 +10,8 @@ import {
   normalizarConfig,
   type Categoria,
   type Config,
+  type Factura,
+  type FacturaItem,
   type MovimientoInventario,
   type Producto,
 } from "@/lib/firebase/tipos";
@@ -100,6 +102,71 @@ export async function listarCategoriasAdmin(): Promise<Categoria[]> {
 export async function obtenerConfigAdmin(): Promise<Config> {
   const snap = await adminDb.doc("config/tienda").get();
   return normalizarConfig(snap.exists ? snap.data() : undefined);
+}
+
+function mapearFactura(id: string, d: DocumentData): Factura {
+  const items: FacturaItem[] = (Array.isArray(d.items) ? d.items : []).map(
+    (it: DocumentData) => ({
+      productoId: it.productoId ?? "",
+      varianteId: it.varianteId ?? "",
+      descripcion: it.descripcion ?? "",
+      sku: it.sku ?? "",
+      cantidad: Number(it.cantidad) || 0,
+      precioUnitario: Number(it.precioUnitario) || 0,
+      importe: Number(it.importe) || 0,
+      devuelto: Number(it.devuelto) || 0,
+    }),
+  );
+  return {
+    id,
+    numero: d.numero ?? id,
+    pedidoId: d.pedidoId ?? null,
+    clienteId: d.clienteId ?? null,
+    clienteNombre: d.clienteNombre ?? "",
+    clienteTelefono: d.clienteTelefono ?? "",
+    clienteDocumento: d.clienteDocumento ?? null,
+    items,
+    subtotal: Number(d.subtotal) || 0,
+    descuento: Number(d.descuento) || 0,
+    impuestoPorcentaje: Number(d.impuestoPorcentaje) || 0,
+    impuestos: Number(d.impuestos) || 0,
+    total: Number(d.total) || 0,
+    estado: d.estado ?? "emitida",
+    fechaEmision: aMillis(d.fechaEmision) ?? 0,
+    fechaPago: aMillis(d.fechaPago),
+    metodoPago: d.metodoPago ?? null,
+    notas: d.notas ?? null,
+    montoPagado: Number(d.montoPagado) || 0,
+    tieneDevolucion: d.tieneDevolucion ?? false,
+    montoDevuelto: Number(d.montoDevuelto) || 0,
+    devoluciones: (Array.isArray(d.devoluciones) ? d.devoluciones : []).map(
+      (v: DocumentData) => ({
+        fecha: aMillis(v.fecha) ?? 0,
+        motivo: v.motivo ?? null,
+        monto: Number(v.monto) || 0,
+        lineas: Array.isArray(v.lineas) ? v.lineas : [],
+      }),
+    ),
+    saldoFinal: Number(d.saldoFinal) || 0,
+    stockDescontado: d.stockDescontado ?? false,
+    creadoEn: aMillis(d.creadoEn) ?? 0,
+    actualizadoEn: aMillis(d.actualizadoEn) ?? 0,
+  };
+}
+
+export async function listarFacturas(limite = 200): Promise<Factura[]> {
+  const snap = await adminDb
+    .collection("facturas")
+    .orderBy("fechaEmision", "desc")
+    .limit(limite)
+    .get();
+  return snap.docs.map((doc) => mapearFactura(doc.id, doc.data()));
+}
+
+export async function obtenerFactura(id: string): Promise<Factura | null> {
+  const snap = await adminDb.collection("facturas").doc(id).get();
+  if (!snap.exists) return null;
+  return mapearFactura(snap.id, snap.data()!);
 }
 
 export async function listarMovimientos(

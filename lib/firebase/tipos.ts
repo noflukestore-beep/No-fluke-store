@@ -14,6 +14,7 @@ export type EstadoPedido =
   | "confirmado"
   | "entregado"
   | "cancelado";
+export type EstadoFactura = "emitida" | "pagada" | "anulada";
 
 // --- Categorías ----------------------------------------------------------
 
@@ -138,6 +139,71 @@ export interface Pedido {
   actualizadoEn: number;
 }
 
+// --- Facturas -------------------------------------------------------
+
+export interface FacturaItem {
+  productoId: string;
+  varianteId: string;
+  /** Ej. "Eau de Noir 100ml — M / Negro". */
+  descripcion: string;
+  sku: string;
+  cantidad: number;
+  /** Precio unitario congelado al emitir. */
+  precioUnitario: number;
+  /** cantidad × precioUnitario. */
+  importe: number;
+  /** Unidades ya devueltas de esta línea. */
+  devuelto: number;
+}
+
+export interface DevolucionFactura {
+  fecha: number;
+  motivo: string | null;
+  /** Monto reembolsado (incluye su parte de descuento e impuesto). */
+  monto: number;
+  lineas: { varianteId: string; cantidad: number }[];
+}
+
+export interface Factura {
+  id: string;
+  /** Correlativo legible. Ej. "FACT-000001". */
+  numero: string;
+  pedidoId: string | null;
+  /** = teléfono normalizado del cliente, o null. */
+  clienteId: string | null;
+  clienteNombre: string;
+  clienteTelefono: string;
+  /** Cédula o RNC. */
+  clienteDocumento: string | null;
+
+  items: FacturaItem[];
+
+  subtotal: number;
+  /** Descuento general en RD$ sobre el subtotal. */
+  descuento: number;
+  impuestoPorcentaje: number;
+  impuestos: number;
+  total: number;
+
+  estado: EstadoFactura;
+  fechaEmision: number;
+  fechaPago: number | null;
+  metodoPago: string | null;
+  notas: string | null;
+
+  montoPagado: number;
+  tieneDevolucion: boolean;
+  montoDevuelto: number;
+  devoluciones: DevolucionFactura[];
+  /** total − pagado − devuelto (nunca negativo). */
+  saldoFinal: number;
+
+  /** Evita descontar/reponer inventario dos veces. */
+  stockDescontado: boolean;
+  creadoEn: number;
+  actualizadoEn: number;
+}
+
 // --- Inventario ------------------------------------------------------
 
 export type TipoMovimiento = "entrada" | "salida" | "ajuste" | "venta";
@@ -187,6 +253,10 @@ export interface Config {
   instagram: string | null;
   facebook: string | null;
   tiktok: string | null;
+  /** RNC / cédula del negocio, para las facturas. */
+  rnc: string | null;
+  /** ITBIS por defecto en las facturas. 0 = sin impuesto. */
+  impuestoPorcentaje: number;
 }
 
 export const CONFIG_POR_DEFECTO: Config = {
@@ -201,6 +271,8 @@ export const CONFIG_POR_DEFECTO: Config = {
   instagram: null,
   facebook: null,
   tiktok: null,
+  rnc: null,
+  impuestoPorcentaje: 0,
 };
 
 /**
@@ -229,5 +301,8 @@ export function normalizarConfig(
     instagram: texto(d?.instagram),
     facebook: texto(d?.facebook),
     tiktok: texto(d?.tiktok),
+    rnc: texto(d?.rnc),
+    impuestoPorcentaje:
+      typeof d?.impuestoPorcentaje === "number" ? d.impuestoPorcentaje : 0,
   };
 }

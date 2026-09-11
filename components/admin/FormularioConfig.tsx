@@ -26,6 +26,10 @@ export default function FormularioConfig({ config }: { config: Config }) {
   const [instagram, setInstagram] = useState(config.instagram ?? "");
   const [facebook, setFacebook] = useState(config.facebook ?? "");
   const [tiktok, setTiktok] = useState(config.tiktok ?? "");
+  const [rnc, setRnc] = useState(config.rnc ?? "");
+  const [impuesto, setImpuesto] = useState(
+    String(config.impuestoPorcentaje ?? 0),
+  );
 
   function enviar(e: React.FormEvent) {
     e.preventDefault();
@@ -42,6 +46,8 @@ export default function FormularioConfig({ config }: { config: Config }) {
         instagram,
         facebook,
         tiktok,
+        rnc,
+        impuestoPorcentaje: Number(impuesto) || 0,
       });
       if (r.ok) {
         if (r.guardado) {
@@ -53,6 +59,8 @@ export default function FormularioConfig({ config }: { config: Config }) {
           setInstagram(r.guardado.instagram ?? "");
           setFacebook(r.guardado.facebook ?? "");
           setTiktok(r.guardado.tiktok ?? "");
+          setRnc(r.guardado.rnc ?? "");
+          setImpuesto(String(r.guardado.impuestoPorcentaje ?? 0));
         }
         setGuardado(true);
         router.refresh();
@@ -138,6 +146,34 @@ export default function FormularioConfig({ config }: { config: Config }) {
               : `Se sumará ${formatearRD(envio)} a cada pedido.`}
           </span>
         </Campo>
+      </Seccion>
+
+      <Seccion titulo="Facturación">
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <Campo etiqueta="RNC / Cédula del negocio">
+            <input
+              value={rnc}
+              onChange={(e) => setRnc(e.target.value)}
+              placeholder="1-31-12345-6"
+              className={entrada}
+            />
+          </Campo>
+          <Campo etiqueta="ITBIS (%)">
+            <input
+              type="number"
+              min={0}
+              max={100}
+              step={1}
+              value={impuesto}
+              onChange={(e) => setImpuesto(e.target.value)}
+              className={entrada}
+            />
+          </Campo>
+        </div>
+        <span className="block text-xs text-white/40">
+          Datos para las facturas. Deja el ITBIS en 0 si no facturas
+          formalmente; puedes cambiarlo en cada factura.
+        </span>
       </Seccion>
 
       <Seccion titulo="Redes sociales">

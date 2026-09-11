@@ -17,6 +17,8 @@ export interface ConfigInput {
   instagram: string;
   facebook: string;
   tiktok: string;
+  rnc: string;
+  impuestoPorcentaje: number;
 }
 
 export interface Resultado {
@@ -33,6 +35,8 @@ export interface Resultado {
     | "correo"
     | "direccion"
     | "costoEnvio"
+    | "rnc"
+    | "impuestoPorcentaje"
   >;
 }
 
@@ -82,6 +86,11 @@ export async function guardarConfig(entrada: ConfigInput): Promise<Resultado> {
 
   const texto = (v: string) => v.trim() || null;
 
+  const impuestoPorcentaje = Math.min(
+    100,
+    Math.max(0, Number(entrada.impuestoPorcentaje) || 0),
+  );
+
   const datos = {
     nombreTienda,
     whatsapp,
@@ -92,6 +101,8 @@ export async function guardarConfig(entrada: ConfigInput): Promise<Resultado> {
     instagram: usuarioRed(entrada.instagram),
     facebook: usuarioRed(entrada.facebook),
     tiktok: usuarioRed(entrada.tiktok),
+    rnc: texto(entrada.rnc),
+    impuestoPorcentaje,
   };
 
   await adminDb.doc("config/tienda").set(
@@ -113,6 +124,8 @@ export async function guardarConfig(entrada: ConfigInput): Promise<Resultado> {
       correo: datos.correo,
       direccion: datos.direccion,
       costoEnvio: datos.costoEnvio,
+      rnc: datos.rnc,
+      impuestoPorcentaje: datos.impuestoPorcentaje,
     },
   };
 }

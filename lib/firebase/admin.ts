@@ -27,11 +27,26 @@ if (typeof window !== "undefined") {
   );
 }
 
+/**
+ * La clave privada admite dos formatos de variable de entorno:
+ * - `FIREBASE_PRIVATE_KEY_BASE64`: la clave PEM codificada en base64, sin
+ *   comillas ni `\n`. Se prefiere este: es una sola línea "plana" que no se
+ *   rompe al copiar y pegar (por ejemplo en el panel de Vercel).
+ * - `FIREBASE_PRIVATE_KEY`: la clave PEM con los saltos de línea escritos
+ *   como `\n` (como la deja `.env.local`). Se usa si no está la de arriba.
+ */
+function leerClavePrivada(): string | undefined {
+  const base64 = process.env.FIREBASE_PRIVATE_KEY_BASE64;
+  if (base64) {
+    return Buffer.from(base64, "base64").toString("utf8");
+  }
+  return process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+}
+
 function crearAppAdmin(): App {
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  // La clave privada trae saltos de línea escritos como \n en el .env.
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  const privateKey = leerClavePrivada();
 
   if (!projectId || !clientEmail || !privateKey) {
     throw new Error(

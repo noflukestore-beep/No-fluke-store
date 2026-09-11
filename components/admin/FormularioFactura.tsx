@@ -70,6 +70,8 @@ export default function FormularioFactura({
   const [clienteDocumento, setClienteDocumento] = useState("");
   const [lineas, setLineas] = useState<Linea[]>([]);
   const [seleccion, setSeleccion] = useState("");
+  const [busqueda, setBusqueda] = useState("");
+  const [listaAbierta, setListaAbierta] = useState(false);
   const [cantNueva, setCantNueva] = useState("1");
   const [descuento, setDescuento] = useState("0");
   const [impuesto, setImpuesto] = useState(
@@ -78,6 +80,20 @@ export default function FormularioFactura({
   const [metodoPago, setMetodoPago] = useState("");
   const [pagar, setPagar] = useState(false);
   const [notas, setNotas] = useState("");
+
+  const coincidencias = useMemo(() => {
+    const t = busqueda.trim().toLowerCase();
+    const lista = t
+      ? opciones.filter((o) => o.etiqueta.toLowerCase().includes(t))
+      : opciones;
+    return lista.slice(0, 20);
+  }, [opciones, busqueda]);
+
+  function elegirOpcion(o: Opcion) {
+    setSeleccion(`${o.productoId}:${o.varianteId}`);
+    setBusqueda(o.etiqueta);
+    setListaAbierta(false);
+  }
 
   function agregarLinea() {
     const o = opciones.find(
@@ -107,6 +123,7 @@ export default function FormularioFactura({
       ];
     });
     setSeleccion("");
+    setBusqueda("");
     setCantNueva("1");
   }
 
@@ -134,6 +151,8 @@ export default function FormularioFactura({
     setClienteDocumento("");
     setLineas([]);
     setSeleccion("");
+    setBusqueda("");
+    setListaAbierta(false);
     setCantNueva("1");
     setDescuento("0");
     setImpuesto(String(config.impuestoPorcentaje ?? 0));
@@ -215,22 +234,60 @@ export default function FormularioFactura({
       </Seccion>
 
       <Seccion titulo="Productos">
+        <div className="relative">
+          <input
+            value={busqueda}
+            onChange={(e) => {
+              setBusqueda(e.target.value);
+              setSeleccion("");
+              setListaAbierta(true);
+            }}
+            onFocus={() => setListaAbierta(true)}
+            onBlur={() => setTimeout(() => setListaAbierta(false), 150)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                if (!seleccion && coincidencias.length > 0) {
+                  elegirOpcion(coincidencias[0]);
+                }
+              } else if (e.key === "Escape") {
+                setListaAbierta(false);
+              }
+            }}
+            placeholder="Busca un producto por nombre…"
+            className={entrada}
+          />
+          {listaAbierta && (
+            <ul className="absolute z-20 mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-white/10 bg-[#0c1310] shadow-xl">
+              {coincidencias.length === 0 ? (
+                <li className="px-3 py-2.5 text-sm text-white/40">
+                  Nada coincide con &quot;{busqueda}&quot;.
+                </li>
+              ) : (
+                coincidencias.map((o) => (
+                  <li key={`${o.productoId}:${o.varianteId}`}>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => elegirOpcion(o)}
+                      className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-white/5"
+                    >
+                      <span className="min-w-0 truncate">{o.etiqueta}</span>
+                      <span
+                        className={`shrink-0 text-xs ${
+                          o.stock > 0 ? "text-white/40" : "text-rose-400"
+                        }`}
+                      >
+                        {o.stock} disp. · {formatearRD(o.precio)}
+                      </span>
+                    </button>
+                  </li>
+                ))
+              )}
+            </ul>
+          )}
+        </div>
         <div className="flex flex-col gap-2 sm:flex-row">
-          <select
-            value={seleccion}
-            onChange={(e) => setSeleccion(e.target.value)}
-            className={`${entrada} sm:flex-1`}
-          >
-            <option value="">Elige un artículo…</option>
-            {opciones.map((o) => (
-              <option
-                key={`${o.productoId}:${o.varianteId}`}
-                value={`${o.productoId}:${o.varianteId}`}
-              >
-                {o.etiqueta} · {o.stock} en existencia
-              </option>
-            ))}
-          </select>
           <input
             type="number"
             min={1}

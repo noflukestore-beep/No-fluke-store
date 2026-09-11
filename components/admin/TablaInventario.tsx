@@ -181,6 +181,10 @@ function PanelAjuste({
 
   function aplicar() {
     setError(null);
+    if (!motivo.trim()) {
+      setError("Escribe el motivo del ajuste.");
+      return;
+    }
     iniciar(async () => {
       const r = await ajustarStock({
         productoId: articulo.productoId,
@@ -234,7 +238,7 @@ function PanelAjuste({
         </label>
         <label className="block flex-1">
           <span className="mb-1 block text-[11px] text-white/40">
-            Motivo (opcional)
+            Motivo <span className="text-verde">*</span>
           </span>
           <input
             value={motivo}
@@ -249,7 +253,9 @@ function PanelAjuste({
         <button
           type="button"
           onClick={aplicar}
-          disabled={pendiente || (modo !== "fijar" && n <= 0)}
+          disabled={
+            pendiente || !motivo.trim() || (modo !== "fijar" && n <= 0)
+          }
           className="rounded-lg bg-verde px-4 py-2 text-sm font-bold text-[#04140c] hover:brightness-105 disabled:opacity-50"
         >
           {pendiente ? "Aplicando…" : "Aplicar"}

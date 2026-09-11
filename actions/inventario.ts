@@ -37,6 +37,9 @@ export async function ajustarStock(entrada: AjusteInput): Promise<Resultado> {
   if (entrada.modo !== "fijar" && cantidad <= 0) {
     return { ok: false, error: "La cantidad debe ser mayor que 0." };
   }
+  if (!entrada.motivo.trim()) {
+    return { ok: false, error: "Escribe el motivo del ajuste." };
+  }
 
   const ref = adminDb.collection("productos").doc(entrada.productoId);
 

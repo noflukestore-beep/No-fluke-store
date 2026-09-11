@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { alternarActivo, eliminarProducto } from "@/actions/productos";
 import type { Producto } from "@/lib/firebase/tipos";
-import { formatearRDCorto, precioEfectivo } from "@/lib/precios";
+import { formatearRDCorto } from "@/lib/precios";
 
 export default function TablaProductos({
   productos,
@@ -60,7 +60,7 @@ export default function TablaProductos({
             <tr>
               <th className="px-3 py-2.5 font-medium">Producto</th>
               <th className="px-3 py-2.5 font-medium">Categoría</th>
-              <th className="px-3 py-2.5 font-medium">Precio</th>
+              <th className="px-3 py-2.5 font-medium">Precio de venta</th>
               <th className="px-3 py-2.5 font-medium">Stock</th>
               <th className="px-3 py-2.5 font-medium">Estado</th>
               <th className="px-3 py-2.5 font-medium text-right">Acciones</th>
@@ -77,7 +77,6 @@ export default function TablaProductos({
               </tr>
             )}
             {lista.map((p) => {
-              const { valor, tipo } = precioEfectivo(p, 1);
               return (
                 <tr key={p.id} className="hover:bg-white/[0.02]">
                   <td className="px-3 py-2.5">
@@ -88,10 +87,12 @@ export default function TablaProductos({
                     {p.categoriaNombre || "—"}
                   </td>
                   <td className="px-3 py-2.5">
-                    <span className="font-semibold">{formatearRDCorto(valor)}</span>
-                    {tipo === "oferta" && (
-                      <span className="ml-1 text-xs text-white/35 line-through">
-                        {formatearRDCorto(p.precio)}
+                    <span className="font-semibold">
+                      {formatearRDCorto(p.precio)}
+                    </span>
+                    {p.precioOferta != null && (
+                      <span className="block text-[11px] font-medium text-verde/80">
+                        oferta {formatearRDCorto(p.precioOferta)}
                       </span>
                     )}
                   </td>

@@ -127,6 +127,21 @@ export default function FormularioFactura({
 
   const hayFaltante = lineas.some((l) => l.cantidad > l.stock);
 
+  function limpiar() {
+    setError(null);
+    setClienteNombre("");
+    setClienteTelefono("");
+    setClienteDocumento("");
+    setLineas([]);
+    setSeleccion("");
+    setCantNueva("1");
+    setDescuento("0");
+    setImpuesto(String(config.impuestoPorcentaje ?? 0));
+    setMetodoPago("");
+    setPagar(false);
+    setNotas("");
+  }
+
   function emitir() {
     setError(null);
     if (!clienteNombre.trim()) {
@@ -393,17 +408,17 @@ export default function FormularioFactura({
             <p className="text-sm font-semibold text-rose-400">{error}</p>
           ) : (
             <span className="text-sm text-white/60">
-              Total <span className="font-bold text-white">{formatearRD(total)}</span>
-              {" · descuenta del inventario al emitir"}
+              Total{" "}
+              <span className="font-bold text-white">{formatearRD(total)}</span>
             </span>
           )}
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => router.push("/admin/facturas")}
+              onClick={limpiar}
               className="rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-white/80 hover:bg-white/5"
             >
-              Cancelar
+              Limpiar
             </button>
             <button
               type="button"

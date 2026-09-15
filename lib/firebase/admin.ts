@@ -9,6 +9,12 @@
  * `import "server-only"` hace fallar el build si algún módulo con `"use client"`
  * llega a importar este archivo. La comprobación de `window` es una segunda
  * barrera en tiempo de ejecución.
+ *
+ * OJO: no exportar `getAuth(appAdmin)` de `firebase-admin/auth` aquí. Esa
+ * librería arrastra `jwks-rsa` -> `jose`, cuyo build ESM rompe el bundle de
+ * funciones serverless de Vercel (`ERR_REQUIRE_ESM`) y tumbaba TODA la app
+ * (tienda incluida), aunque nada usara `adminAuth` todavía. Si en el futuro
+ * se necesita, revisar antes que ese conflicto esté resuelto en la librería.
  */
 import "server-only";
 import {
@@ -17,7 +23,6 @@ import {
   initializeApp,
   type App,
 } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 
@@ -64,7 +69,6 @@ function crearAppAdmin(): App {
 // Singleton: evita "app already exists" en hot-reload y entre invocaciones.
 const appAdmin: App = getApps().length ? getApps()[0]! : crearAppAdmin();
 
-export const adminAuth = getAuth(appAdmin);
 export const adminDb = getFirestore(appAdmin);
 
 /** Bucket de Storage para las fotos de producto (`productos/<id>/<archivo>`). */

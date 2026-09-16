@@ -67,3 +67,26 @@ export function porcentajeDescuento(precio: number, precioOferta: number): numbe
   if (precio <= 0 || precioOferta >= precio) return 0;
   return Math.round(((precio - precioOferta) / precio) * 100);
 }
+
+/**
+ * Precio "antes" que se muestra tachado junto al precio vigente, o `null`
+ * si no aplica. Dos fuentes posibles, en este orden:
+ * 1. `precioFantasma`: referencia permanente de exhibición (no vence).
+ * 2. El precio de lista, solo mientras haya una oferta real vigente.
+ */
+export function precioTachado(
+  producto: Pick<Producto, "precio" | "precioFantasma">,
+  valorVigente: number,
+  tipoVigente: TipoPrecio,
+): number | null {
+  if (
+    producto.precioFantasma != null &&
+    producto.precioFantasma > valorVigente
+  ) {
+    return producto.precioFantasma;
+  }
+  if (tipoVigente === "oferta" && producto.precio > valorVigente) {
+    return producto.precio;
+  }
+  return null;
+}

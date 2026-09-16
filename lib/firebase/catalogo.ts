@@ -51,6 +51,8 @@ function serializarProducto(doc: QueryDocumentSnapshot): Producto {
     categoriaSlug: d.categoriaSlug ?? "",
     precioCompra: typeof d.precioCompra === "number" ? d.precioCompra : null,
     precio: typeof d.precio === "number" ? d.precio : 0,
+    precioFantasma:
+      typeof d.precioFantasma === "number" ? d.precioFantasma : null,
     precioOferta,
     tieneOferta: d.tieneOferta ?? precioOferta != null,
     ofertaHasta: aMillis(d.ofertaHasta),

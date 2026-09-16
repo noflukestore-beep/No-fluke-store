@@ -108,6 +108,9 @@ export default function FormularioProducto({
       : "";
   const [margen, setMargen] = useState(margenInicial);
 
+  const [precioFantasma, setPrecioFantasma] = useState(
+    producto?.precioFantasma != null ? String(producto.precioFantasma) : "",
+  );
   const [precioOferta, setPrecioOferta] = useState(
     producto?.precioOferta != null ? String(producto.precioOferta) : "",
   );
@@ -169,11 +172,13 @@ export default function FormularioProducto({
 
   const pv = num(precio) ?? 0;
   const pc = num(precioCompra);
+  const pf = num(precioFantasma);
   const po = num(precioOferta);
   const pm = num(precioMayor);
   const ganancia = pc != null && pv > 0 ? pv - pc : null;
   const pctOferta = po != null && pv > 0 ? porcentajeDescuento(pv, po) : 0;
-  const mayorMalo = pm != null && (po ?? pv) > 0 && pm >= (po ?? pv);
+  const mayorMalo = pm != null && pm > 0 && (po ?? pv) > 0 && pm >= (po ?? pv);
+  const fantasmaMalo = pf != null && pv > 0 && pf <= pv;
 
   const stockTotal = useMemo(
     () => variantes.reduce((s, v) => s + (Number(v.stock) || 0), 0),
@@ -276,6 +281,7 @@ export default function FormularioProducto({
       categoriaId,
       precioCompra: num(precioCompra),
       precio: pv,
+      precioFantasma: pf,
       precioOferta: po,
       ofertaHasta: deFecha(ofertaHasta),
       precioMayor: pm,
@@ -541,6 +547,35 @@ export default function FormularioProducto({
         <div className="h-px bg-white/10" />
 
         <p className="text-xs font-semibold uppercase tracking-wide text-white/40">
+          Precio fantasma
+        </p>
+        <div className="sm:max-w-xs">
+          <Campo etiqueta="Precio fantasma (antes)">
+            <input
+              type="number"
+              min={0}
+              inputMode="numeric"
+              value={precioFantasma}
+              onChange={(e) => setPrecioFantasma(e.target.value)}
+              className={`${entrada} ${fantasmaMalo ? "border-rose-500" : ""}`}
+              placeholder="No aplica"
+            />
+          </Campo>
+        </div>
+        {fantasmaMalo && (
+          <p className="text-sm font-semibold text-rose-400">
+            El precio fantasma debe ser mayor que el precio de venta.
+          </p>
+        )}
+        <p className="text-xs text-white/40">
+          Se muestra tachado junto al precio de venta, como si fuera el
+          precio &ldquo;antes&rdquo;. Es permanente (no vence como la
+          oferta). Déjalo vacío si no aplica.
+        </p>
+
+        <div className="h-px bg-white/10" />
+
+        <p className="text-xs font-semibold uppercase tracking-wide text-white/40">
           Precio por mayor
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -552,7 +587,7 @@ export default function FormularioProducto({
               value={precioMayor}
               onChange={(e) => setPrecioMayor(e.target.value)}
               className={`${entrada} ${mayorMalo ? "border-rose-500" : ""}`}
-              placeholder="Opcional"
+              placeholder="No aplica"
             />
           </Campo>
           <Campo etiqueta="Desde esta cantidad">
@@ -573,6 +608,10 @@ export default function FormularioProducto({
             venta.
           </p>
         )}
+        <p className="text-xs text-white/40">
+          Déjalo vacío o en 0 si el producto no se vende al por mayor (no
+          aplica).
+        </p>
 
         <div className="h-px bg-white/10" />
 

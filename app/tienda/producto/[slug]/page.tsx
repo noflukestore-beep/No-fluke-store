@@ -6,6 +6,7 @@ import {
   formatearRD,
   porcentajeDescuento,
   precioEfectivo,
+  precioTachado,
 } from "@/lib/precios";
 
 export const revalidate = 60;
@@ -35,7 +36,7 @@ export default async function ProductoPagina({
   if (!producto) notFound();
 
   const { valor, tipo } = precioEfectivo(producto, 1);
-  const enOferta = tipo === "oferta";
+  const tachado = precioTachado(producto, valor, tipo);
   const agotado = producto.stockTotal <= 0;
 
   const activas = producto.variantes.filter((v) => v.activo && v.stock > 0);
@@ -77,13 +78,13 @@ export default async function ProductoPagina({
           <span className="font-display text-3xl font-extrabold text-verde">
             {formatearRD(valor)}
           </span>
-          {enOferta && (
+          {tachado != null && (
             <>
               <span className="text-white/35 line-through">
-                {formatearRD(producto.precio)}
+                {formatearRD(tachado)}
               </span>
               <span className="rounded-md bg-verde px-1.5 py-0.5 text-xs font-extrabold text-[#04140c]">
-                -{porcentajeDescuento(producto.precio, producto.precioOferta ?? 0)}%
+                -{porcentajeDescuento(tachado, valor)}%
               </span>
             </>
           )}

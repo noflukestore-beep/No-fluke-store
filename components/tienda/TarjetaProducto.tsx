@@ -5,6 +5,7 @@ import {
   formatearRDCorto,
   porcentajeDescuento,
   precioEfectivo,
+  precioTachado,
 } from "@/lib/precios";
 
 export default function TarjetaProducto({
@@ -13,7 +14,7 @@ export default function TarjetaProducto({
   producto: ProductoPublico;
 }) {
   const { valor, tipo } = precioEfectivo(producto, 1);
-  const enOferta = tipo === "oferta";
+  const tachado = precioTachado(producto, valor, tipo);
   const agotado = producto.stockTotal <= 0;
   const pocas =
     !agotado && producto.stockTotal <= producto.stockMinimo
@@ -39,17 +40,17 @@ export default function TarjetaProducto({
 
         {/* Insignias */}
         <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
-          {enOferta && (
+          {tachado != null && (
             <span className="rounded-md bg-verde px-1.5 py-0.5 text-[11px] font-extrabold text-[#04140c]">
-              -{porcentajeDescuento(producto.precio, producto.precioOferta ?? 0)}%
+              -{porcentajeDescuento(tachado, valor)}%
             </span>
           )}
-          {producto.precioMayor != null && !enOferta && (
+          {producto.precioMayor != null && tachado == null && (
             <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white/70 backdrop-blur">
               Por mayor
             </span>
           )}
-          {producto.nuevoIngreso && !enOferta && producto.precioMayor == null && (
+          {producto.nuevoIngreso && tachado == null && producto.precioMayor == null && (
             <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white/70 backdrop-blur">
               Nuevo
             </span>
@@ -83,9 +84,9 @@ export default function TarjetaProducto({
             <span className="font-display text-sm font-extrabold text-verde sm:text-base">
               {formatearRDCorto(valor)}
             </span>
-            {enOferta && (
+            {tachado != null && (
               <span className="text-[11px] text-white/35 line-through">
-                {formatearRDCorto(producto.precio)}
+                {formatearRDCorto(tachado)}
               </span>
             )}
           </div>

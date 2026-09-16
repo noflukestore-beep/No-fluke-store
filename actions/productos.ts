@@ -38,6 +38,7 @@ export interface ProductoInput {
   categoriaId: string;
   precioCompra: number | null;
   precio: number;
+  precioFantasma: number | null;
   precioOferta: number | null;
   ofertaHasta: number | null;
   precioMayor: number | null;
@@ -60,10 +61,13 @@ function validar(p: ProductoInput): string | null {
   if (!p.nombre.trim()) return "El nombre es obligatorio.";
   if (!p.categoriaId) return "Elige una categoría.";
   if (!(p.precio > 0)) return "El precio de venta debe ser mayor que 0.";
+  if (p.precioFantasma != null && !(p.precioFantasma > p.precio)) {
+    return "El precio fantasma debe ser mayor que el precio de venta.";
+  }
   if (p.precioOferta != null && !(p.precioOferta < p.precio)) {
     return "El precio de oferta debe ser menor que el precio de venta.";
   }
-  if (p.precioMayor != null) {
+  if (p.precioMayor != null && p.precioMayor > 0) {
     if (p.cantidadMayor == null || !(p.cantidadMayor >= 2)) {
       return "Indica la cantidad mínima para el precio por mayor (2 o más).";
     }
@@ -149,13 +153,22 @@ export async function guardarProducto(
     categoriaSlug: cat.slug ?? entrada.categoriaId,
     precioCompra: entrada.precioCompra,
     precio: Math.round(entrada.precio),
+    precioFantasma:
+      entrada.precioFantasma != null
+        ? Math.round(entrada.precioFantasma)
+        : null,
     precioOferta:
       entrada.precioOferta != null ? Math.round(entrada.precioOferta) : null,
     tieneOferta: entrada.precioOferta != null,
     ofertaHasta: entrada.ofertaHasta,
     precioMayor:
-      entrada.precioMayor != null ? Math.round(entrada.precioMayor) : null,
-    cantidadMayor: entrada.cantidadMayor,
+      entrada.precioMayor != null && entrada.precioMayor > 0
+        ? Math.round(entrada.precioMayor)
+        : null,
+    cantidadMayor:
+      entrada.precioMayor != null && entrada.precioMayor > 0
+        ? entrada.cantidadMayor
+        : null,
     activo: entrada.activo,
     destacado: entrada.destacado,
     nuevoIngreso: entrada.nuevoIngreso,

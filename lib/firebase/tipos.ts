@@ -72,6 +72,12 @@ export interface Producto {
   precioCompra: number | null;
 
   precio: number;
+  /**
+   * Precio "antes", solo de exhibición: se muestra tachado junto al precio
+   * vigente para dar sensación de descuento permanente. No se usa para
+   * cobrar ni tiene vencimiento (a diferencia de `precioOferta`).
+   */
+  precioFantasma: number | null;
   precioOferta: number | null;
   /** Denormalizado = `precioOferta != null`. La vigencia se revisa al leer. */
   tieneOferta: boolean;

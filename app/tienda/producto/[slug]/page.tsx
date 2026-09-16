@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import SelectorCompra from "@/components/tienda/SelectorCompra";
 import { obtenerProducto, obtenerProductos } from "@/lib/firebase/catalogo";
 import {
   formatearRD,
@@ -158,10 +159,7 @@ export default async function ProductoPagina({
           </p>
         )}
 
-        <div className="mt-6 rounded-xl border border-dashed border-white/15 bg-white/[0.03] p-6 text-sm text-white/60">
-          El selector de talla/color y el botón “Agregar al carrito” se
-          construyen en la Fase 4.
-        </div>
+        {!agotado && <SelectorCompra producto={producto} />}
 
         <Link
           href={`/tienda/categoria/${producto.categoriaSlug}`}

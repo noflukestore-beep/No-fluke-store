@@ -1,25 +1,28 @@
-import Link from "next/link";
+import CarritoCliente from "@/components/tienda/CarritoCliente";
+import { obtenerConfig } from "@/lib/firebase/catalogo";
 
 export const metadata = { title: "Carrito" };
+export const revalidate = 60;
 
-export default function CarritoPagina() {
+export default async function CarritoPagina() {
+  const config = await obtenerConfig();
+
   return (
     <div>
       <h1 className="font-display text-2xl font-extrabold uppercase tracking-tight md:text-3xl">
         Tu carrito
       </h1>
-      <div className="mt-6 rounded-xl border border-dashed border-white/15 bg-white/[0.03] p-10 text-center">
-        <p className="text-sm text-white/60">
-          El carrito y el cierre de pedido por WhatsApp se construyen en la
-          Fase 4.
+      {config.whatsapp ? (
+        <CarritoCliente
+          whatsapp={config.whatsapp}
+          costoEnvio={config.costoEnvio}
+        />
+      ) : (
+        <p className="mt-6 rounded-xl border border-amber-400/25 bg-amber-400/10 p-4 text-center text-sm text-amber-200">
+          La tienda todavía no configuró un número de WhatsApp para recibir
+          pedidos.
         </p>
-        <Link
-          href="/tienda"
-          className="mt-4 inline-block rounded-full bg-verde px-5 py-2.5 text-sm font-bold text-[#04140c] transition-transform hover:scale-105"
-        >
-          Seguir viendo
-        </Link>
-      </div>
+      )}
     </div>
   );
 }

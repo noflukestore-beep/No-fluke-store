@@ -4,6 +4,7 @@ import {
   listarFacturas,
   listarProductosAdmin,
   obtenerConfigAdmin,
+  obtenerPedidoAdmin,
 } from "@/lib/firebase/admin-catalogo";
 import type { EstadoFactura } from "@/lib/firebase/tipos";
 import { formatearRD } from "@/lib/precios";
@@ -30,11 +31,17 @@ function fecha(m: number) {
   }).format(new Date(m));
 }
 
-export default async function AdminFacturacion() {
-  const [productos, config, facturas] = await Promise.all([
+export default async function AdminFacturacion({
+  searchParams,
+}: {
+  searchParams: Promise<{ pedido?: string }>;
+}) {
+  const { pedido: pedidoId } = await searchParams;
+  const [productos, config, facturas, pedido] = await Promise.all([
     listarProductosAdmin(),
     obtenerConfigAdmin(),
     listarFacturas(15),
+    pedidoId ? obtenerPedidoAdmin(pedidoId) : Promise.resolve(null),
   ]);
   const conStock = productos.filter((p) => p.activo || p.stockTotal > 0);
 
@@ -47,6 +54,12 @@ export default async function AdminFacturacion() {
         Emite una factura; descuenta del inventario al emitirla.
       </p>
 
+      {pedidoId && !pedido && (
+        <p className="mb-5 rounded-xl border border-amber-400/25 bg-amber-400/10 p-4 text-sm text-amber-200">
+          El pedido que buscas ya no existe o ya fue facturado.
+        </p>
+      )}
+
       {productos.length === 0 ? (
         <p className="rounded-xl border border-amber-400/25 bg-amber-400/10 p-4 text-sm text-amber-200">
           Primero crea productos en{" "}
@@ -56,7 +69,7 @@ export default async function AdminFacturacion() {
           .
         </p>
       ) : (
-        <FormularioFactura productos={conStock} config={config} />
+        <FormularioFactura productos={conStock} config={config} pedido={pedido} />
       )}
 
       {facturas.length > 0 && (

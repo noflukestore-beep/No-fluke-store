@@ -49,3 +49,10 @@ export function generarKeywords(
   }
   return [...tokens];
 }
+
+/** 10 u 11 dígitos dominicanos -> "1809XXXXXXX", o "" si no aplica. */
+export function normalizarTelefono(bruto: string): string {
+  let d = (bruto || "").replace(/\D/g, "");
+  if (d.length === 10) d = `1${d}`;
+  return /^1(809|829|849)\d{7}$/.test(d) ? d : "";
+}

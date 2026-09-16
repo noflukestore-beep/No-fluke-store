@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import { crearFactura, type FacturaLineaInput } from "@/actions/facturas";
-import type { Config, Producto } from "@/lib/firebase/tipos";
+import type { Config, Pedido, Producto } from "@/lib/firebase/tipos";
 import { formatearRD } from "@/lib/precios";
 
 const entrada =
@@ -34,9 +34,11 @@ function money(x: number) {
 export default function FormularioFactura({
   productos,
   config,
+  pedido,
 }: {
   productos: Producto[];
   config: Config;
+  pedido?: Pedido | null;
 }) {
   const router = useRouter();
   const [pendiente, iniciar] = useTransition();
@@ -65,10 +67,34 @@ export default function FormularioFactura({
     return lista.sort((a, b) => a.etiqueta.localeCompare(b.etiqueta));
   }, [productos, ahora]);
 
-  const [clienteNombre, setClienteNombre] = useState("");
-  const [clienteTelefono, setClienteTelefono] = useState("");
+  const [clienteNombre, setClienteNombre] = useState(
+    pedido?.clienteNombre ?? "",
+  );
+  const [clienteTelefono, setClienteTelefono] = useState(
+    pedido?.clienteTelefono ?? "",
+  );
   const [clienteDocumento, setClienteDocumento] = useState("");
-  const [lineas, setLineas] = useState<Linea[]>([]);
+  const [lineas, setLineas] = useState<Linea[]>(() => {
+    if (!pedido) return [];
+    return pedido.items.map((it) => {
+      const stock =
+        productos
+          .find((p) => p.id === it.productoId)
+          ?.variantes.find((v) => v.id === it.varianteId)?.stock ?? 0;
+      return {
+        key: `${it.productoId}:${it.varianteId}`,
+        productoId: it.productoId,
+        varianteId: it.varianteId,
+        descripcion:
+          it.varianteDesc && it.varianteDesc !== "Único"
+            ? `${it.productoNombre} — ${it.varianteDesc}`
+            : it.productoNombre,
+        stock,
+        cantidad: it.cantidad,
+        precioUnitario: it.precioUnitario,
+      };
+    });
+  });
   const [seleccion, setSeleccion] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [listaAbierta, setListaAbierta] = useState(false);
@@ -79,7 +105,15 @@ export default function FormularioFactura({
   );
   const [metodoPago, setMetodoPago] = useState("");
   const [pagar, setPagar] = useState(false);
-  const [notas, setNotas] = useState("");
+  const [notas, setNotas] = useState(() => {
+    if (!pedido) return "";
+    const partes = [
+      `Pedido ${pedido.codigo} por WhatsApp.`,
+      `Entrega: ${pedido.clienteDireccion}`,
+    ];
+    if (pedido.nota) partes.push(`Nota del cliente: ${pedido.nota}`);
+    return partes.join("\n");
+  });
 
   const coincidencias = useMemo(() => {
     const t = busqueda.trim().toLowerCase();
@@ -192,6 +226,7 @@ export default function FormularioFactura({
         pagar,
         notas,
         lineas: payload,
+        pedidoId: pedido?.id ?? null,
       });
       if (r.ok && r.id) {
         router.push(`/admin/facturas/${r.id}`);
@@ -204,6 +239,12 @@ export default function FormularioFactura({
 
   return (
     <div className="max-w-3xl space-y-6 pb-28">
+      {pedido && (
+        <div className="rounded-xl border border-verde/30 bg-verde/10 p-4 text-sm text-verde">
+          Facturando el pedido <strong>{pedido.codigo}</strong> recibido por
+          WhatsApp. Revisa los datos y emite para descontar el inventario.
+        </div>
+      )}
       <Seccion titulo="Cliente">
         <Campo etiqueta="Nombre" requerido>
           <input

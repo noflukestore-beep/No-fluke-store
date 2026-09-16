@@ -1,13 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { EstadoPedido } from "@/lib/firebase/tipos";
-import { PEDIDOS_DEMO, type PedidoDemo } from "@/lib/admin/demo";
+import Link from "next/link";
+import { useMemo, useState, useTransition } from "react";
+import { cancelarPedido } from "@/actions/pedidos";
+import type { EstadoPedido, Pedido } from "@/lib/firebase/tipos";
 import { formatearRD } from "@/lib/precios";
 
 const TABS: Array<{ estado: EstadoPedido; etiqueta: string }> = [
   { estado: "pendiente", etiqueta: "Pendientes" },
-  { estado: "confirmado", etiqueta: "Confirmados" },
+  { estado: "confirmado", etiqueta: "Facturados" },
   { estado: "entregado", etiqueta: "Entregados" },
   { estado: "cancelado", etiqueta: "Cancelados" },
 ];
@@ -19,7 +20,17 @@ const COLOR_ESTADO: Record<EstadoPedido, string> = {
   cancelado: "bg-rose-400/15 text-rose-300",
 };
 
-export default function PanelPedidos() {
+function hace(millis: number): string {
+  if (!millis) return "—";
+  const min = Math.floor((Date.now() - millis) / 60000);
+  if (min < 1) return "ahora mismo";
+  if (min < 60) return `hace ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `hace ${h} h`;
+  return `hace ${Math.floor(h / 24)} d`;
+}
+
+export default function PanelPedidos({ pedidos }: { pedidos: Pedido[] }) {
   const [tab, setTab] = useState<EstadoPedido>("pendiente");
 
   const conteos = useMemo(() => {
@@ -29,11 +40,11 @@ export default function PanelPedidos() {
       entregado: 0,
       cancelado: 0,
     };
-    for (const p of PEDIDOS_DEMO) c[p.estado]++;
+    for (const p of pedidos) c[p.estado]++;
     return c;
-  }, []);
+  }, [pedidos]);
 
-  const lista = PEDIDOS_DEMO.filter((p) => p.estado === tab);
+  const lista = pedidos.filter((p) => p.estado === tab);
 
   return (
     <section className="mt-8">
@@ -75,7 +86,7 @@ export default function PanelPedidos() {
       ) : (
         <ul className="mt-4 grid gap-3 md:grid-cols-2">
           {lista.map((pedido) => (
-            <TarjetaPedido key={pedido.codigo} pedido={pedido} />
+            <TarjetaPedido key={pedido.id} pedido={pedido} />
           ))}
         </ul>
       )}
@@ -83,7 +94,19 @@ export default function PanelPedidos() {
   );
 }
 
-function TarjetaPedido({ pedido }: { pedido: PedidoDemo }) {
+function TarjetaPedido({ pedido }: { pedido: Pedido }) {
+  const [pendiente, iniciar] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const articulos = pedido.items.reduce((s, i) => s + i.cantidad, 0);
+
+  function cancelar() {
+    setError(null);
+    iniciar(async () => {
+      const r = await cancelarPedido(pedido.id);
+      if (!r.ok) setError(r.error ?? "No se pudo cancelar.");
+    });
+  }
+
   return (
     <li className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
       <div className="flex items-start justify-between gap-2">
@@ -91,7 +114,9 @@ function TarjetaPedido({ pedido }: { pedido: PedidoDemo }) {
           <p className="font-mono text-sm font-bold tracking-tight">
             {pedido.codigo}
           </p>
-          <p className="mt-0.5 text-xs text-white/40">{pedido.hace}</p>
+          <p className="mt-0.5 text-xs text-white/40">
+            {hace(pedido.creadoEn)}
+          </p>
         </div>
         <span
           className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide ${COLOR_ESTADO[pedido.estado]}`}
@@ -100,44 +125,69 @@ function TarjetaPedido({ pedido }: { pedido: PedidoDemo }) {
         </span>
       </div>
 
-      {pedido.atrasado && (
-        <p className="mt-2 rounded-md bg-rose-500/10 px-2 py-1 text-[11px] font-semibold text-rose-300">
-          Pendiente hace más de 24 h
-        </p>
-      )}
-
       <div className="mt-3">
         <p className="text-sm font-semibold">{pedido.clienteNombre}</p>
         <p className="text-xs text-white/45">{pedido.clienteTelefono}</p>
+        {pedido.clienteDireccion && (
+          <p className="mt-1 text-xs text-white/45">
+            📍 {pedido.clienteDireccion}
+          </p>
+        )}
+        {pedido.nota && (
+          <p className="mt-1 text-xs italic text-white/40">
+            &ldquo;{pedido.nota}&rdquo;
+          </p>
+        )}
       </div>
 
-      <div className="mt-3 flex gap-1.5">
-        {Array.from({ length: pedido.miniaturas }).map((_, i) => (
-          <div
-            key={i}
-            className="h-10 w-10 rounded-lg border border-white/10 bg-white/5"
-          />
+      <ul className="mt-3 space-y-0.5 border-t border-white/5 pt-2 text-xs text-white/55">
+        {pedido.items.map((it, i) => (
+          <li key={i} className="truncate">
+            {it.cantidad}x {it.productoNombre}
+            {it.varianteDesc !== "Único" ? ` (${it.varianteDesc})` : ""}
+          </li>
         ))}
-      </div>
+      </ul>
 
       <div className="mt-3 flex items-end justify-between border-t border-white/5 pt-3">
         <span className="text-xs text-white/45">
-          {pedido.articulos} {pedido.articulos === 1 ? "artículo" : "artículos"}
+          {articulos} {articulos === 1 ? "artículo" : "artículos"}
         </span>
         <span className="font-display text-lg font-extrabold text-verde">
           {formatearRD(pedido.total)}
         </span>
       </div>
 
+      {error && (
+        <p className="mt-2 text-xs font-semibold text-rose-400">{error}</p>
+      )}
+
       <div className="mt-3 flex gap-2">
         {pedido.estado === "pendiente" && (
           <>
-            <BotonAccion tono="verde">Confirmar</BotonAccion>
-            <BotonAccion tono="borde">Cancelar</BotonAccion>
+            <Link
+              href={`/admin/facturas?pedido=${pedido.id}`}
+              className="rounded-lg bg-verde px-3 py-2 text-sm font-semibold text-[#04140c] hover:brightness-110"
+            >
+              Facturar
+            </Link>
+            <button
+              type="button"
+              onClick={cancelar}
+              disabled={pendiente}
+              className="rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold text-white/70 hover:bg-white/5 disabled:opacity-50"
+            >
+              Cancelar
+            </button>
           </>
         )}
-        {pedido.estado === "confirmado" && (
-          <BotonAccion tono="verde">Marcar entregado</BotonAccion>
+        {pedido.estado === "confirmado" && pedido.facturaId && (
+          <Link
+            href={`/admin/facturas/${pedido.facturaId}`}
+            className="rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold text-white/70 hover:bg-white/5"
+          >
+            Ver factura
+          </Link>
         )}
         <a
           href={`https://wa.me/${pedido.clienteTelefono}`}
@@ -152,26 +202,5 @@ function TarjetaPedido({ pedido }: { pedido: PedidoDemo }) {
         </a>
       </div>
     </li>
-  );
-}
-
-function BotonAccion({
-  children,
-  tono,
-}: {
-  children: React.ReactNode;
-  tono: "verde" | "borde";
-}) {
-  return (
-    <button
-      type="button"
-      className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
-        tono === "verde"
-          ? "bg-verde text-[#04140c] hover:brightness-110"
-          : "border border-white/15 text-white/70 hover:bg-white/5"
-      }`}
-    >
-      {children}
-    </button>
   );
 }

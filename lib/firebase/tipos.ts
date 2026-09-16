@@ -129,6 +129,7 @@ export interface Pedido {
   codigo: string;
   clienteNombre: string;
   clienteTelefono: string;
+  clienteDireccion: string;
   nota: string | null;
 
   /** Copia congelada de los precios al momento del pedido. */
@@ -141,6 +142,8 @@ export interface Pedido {
   estado: EstadoPedido;
   /** Evita descontar stock dos veces. */
   stockDescontado: boolean;
+  /** Factura emitida a partir de este pedido, si ya se facturó. */
+  facturaId: string | null;
   creadoEn: number;
   actualizadoEn: number;
 }

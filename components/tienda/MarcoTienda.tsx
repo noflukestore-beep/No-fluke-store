@@ -5,10 +5,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import Buscador from "@/components/tienda/Buscador";
+import { useHidratado } from "@/lib/hooks/useHidratado";
+import { useCarrito } from "@/lib/store/carrito";
 
 export type CategoriaNav = { nombre: string; slug: string };
 
-const ARTICULOS_CARRITO = 2; // TODO Fase 4: store de Zustand
+/** Evita el desajuste de hidratación: en el servidor el carrito no existe. */
+function useArticulosCarrito(): number {
+  const items = useCarrito((s) => s.items);
+  const hidratado = useHidratado();
+  if (!hidratado) return 0;
+  return items.reduce((s, i) => s + i.cantidad, 0);
+}
 
 function IconoCarrito({ className = "" }: { className?: string }) {
   return (
@@ -187,6 +195,7 @@ export default function MarcoTienda({
 }) {
   const [abierto, setAbierto] = useState(false);
   const ruta = usePathname();
+  const articulosCarrito = useArticulosCarrito();
 
   const itemsNav = [
     { href: "/tienda", etiqueta: "Inicio", icono: "🏠" },
@@ -197,7 +206,7 @@ export default function MarcoTienda({
     <div className="min-h-dvh bg-[#0a0f0c] text-white">
       <EncabezadoBanner
         onMenu={() => setAbierto(true)}
-        articulos={ARTICULOS_CARRITO}
+        articulos={articulosCarrito}
         categorias={categorias}
       />
 
@@ -256,9 +265,9 @@ export default function MarcoTienda({
         >
           <span className="relative text-base">
             🛒
-            {ARTICULOS_CARRITO > 0 && (
+            {articulosCarrito > 0 && (
               <span className="absolute -right-2 -top-1 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-verde px-1 text-[9px] font-bold text-[#04140c]">
-                {ARTICULOS_CARRITO}
+                {articulosCarrito}
               </span>
             )}
           </span>

@@ -13,6 +13,8 @@ import {
   type Factura,
   type FacturaItem,
   type MovimientoInventario,
+  type Pedido,
+  type PedidoItem,
   type Producto,
 } from "@/lib/firebase/tipos";
 
@@ -169,6 +171,53 @@ export async function obtenerFactura(id: string): Promise<Factura | null> {
   const snap = await adminDb.collection("facturas").doc(id).get();
   if (!snap.exists) return null;
   return mapearFactura(snap.id, snap.data()!);
+}
+
+function mapearPedido(id: string, d: DocumentData): Pedido {
+  const items: PedidoItem[] = (Array.isArray(d.items) ? d.items : []).map(
+    (it: DocumentData) => ({
+      productoId: it.productoId ?? "",
+      varianteId: it.varianteId ?? "",
+      productoNombre: it.productoNombre ?? "",
+      varianteDesc: it.varianteDesc ?? "Único",
+      precioUnitario: Number(it.precioUnitario) || 0,
+      tipoPrecio: it.tipoPrecio ?? "detalle",
+      cantidad: Number(it.cantidad) || 0,
+      imagenUrl: it.imagenUrl ?? null,
+    }),
+  );
+  return {
+    id,
+    codigo: d.codigo ?? id,
+    clienteNombre: d.clienteNombre ?? "",
+    clienteTelefono: d.clienteTelefono ?? "",
+    clienteDireccion: d.clienteDireccion ?? "",
+    nota: d.nota ?? null,
+    items,
+    subtotal: Number(d.subtotal) || 0,
+    costoEnvio: Number(d.costoEnvio) || 0,
+    total: Number(d.total) || 0,
+    estado: d.estado ?? "pendiente",
+    stockDescontado: d.stockDescontado ?? false,
+    facturaId: d.facturaId ?? null,
+    creadoEn: aMillis(d.creadoEn) ?? 0,
+    actualizadoEn: aMillis(d.actualizadoEn) ?? 0,
+  };
+}
+
+export async function listarPedidosAdmin(limite = 200): Promise<Pedido[]> {
+  const snap = await adminDb
+    .collection("pedidos")
+    .orderBy("creadoEn", "desc")
+    .limit(limite)
+    .get();
+  return snap.docs.map((doc) => mapearPedido(doc.id, doc.data()));
+}
+
+export async function obtenerPedidoAdmin(id: string): Promise<Pedido | null> {
+  const snap = await adminDb.collection("pedidos").doc(id).get();
+  if (!snap.exists) return null;
+  return mapearPedido(snap.id, snap.data()!);
 }
 
 export async function listarMovimientos(

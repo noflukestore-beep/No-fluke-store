@@ -9,6 +9,7 @@ import {
 import { revalidatePath, revalidateTag } from "next/cache";
 import { adminDb } from "@/lib/firebase/admin";
 import { formatearRD } from "@/lib/precios";
+import { normalizarTelefono } from "@/lib/texto";
 
 // TODO (login admin): verificar sesión + claim rol=admin al inicio de cada
 // acción. Los Server Actions son alcanzables por POST directo.
@@ -34,6 +35,8 @@ export interface FacturaInput {
   pagar: boolean;
   notas: string;
   lineas: FacturaLineaInput[];
+  /** Pedido de WhatsApp del que se origina esta factura, si aplica. */
+  pedidoId?: string | null;
 }
 
 export interface Resultado {
@@ -60,13 +63,6 @@ function descripcionLinea(
 ): string {
   const attrs = [v.talla, v.color].map((x) => (x ?? "").trim()).filter(Boolean);
   return `${productoNombre}${attrs.length ? ` — ${attrs.join(" / ")}` : ""}`;
-}
-
-/** 10 u 11 dígitos dominicanos -> "1809XXXXXXX", o "" si no aplica. */
-function normalizarTelefono(bruto: string): string {
-  let d = (bruto || "").replace(/\D/g, "");
-  if (d.length === 10) d = `1${d}`;
-  return /^1(809|829|849)\d{7}$/.test(d) ? d : "";
 }
 
 function refrescar(id?: string) {
@@ -137,13 +133,20 @@ export async function crearFactura(entrada: FacturaInput): Promise<Resultado> {
   const productoRefs = productoIds.map((id) =>
     adminDb.collection("productos").doc(id),
   );
+  const pedidoRef = entrada.pedidoId
+    ? adminDb.collection("pedidos").doc(entrada.pedidoId)
+    : null;
 
   try {
     const resultado = await adminDb.runTransaction(async (tx: Transaction) => {
-      const [contadorSnap, ...prodSnaps] = await Promise.all([
+      const [contadorSnap, pedidoSnap, ...prodSnaps] = await Promise.all([
         tx.get(contadorRef),
+        pedidoRef ? tx.get(pedidoRef) : Promise.resolve(null),
         ...productoRefs.map((r) => tx.get(r)),
       ]);
+      if (pedidoRef && (!pedidoSnap || !pedidoSnap.exists)) {
+        throw new Error("El pedido de origen ya no existe.");
+      }
 
       const productos = new Map<
         string,
@@ -251,7 +254,7 @@ export async function crearFactura(entrada: FacturaInput): Promise<Resultado> {
 
       tx.set(facturaRef, {
         numero,
-        pedidoId: null,
+        pedidoId: entrada.pedidoId || null,
         clienteId: telefono || null,
         clienteNombre,
         clienteTelefono: telefono,
@@ -293,10 +296,19 @@ export async function crearFactura(entrada: FacturaInput): Promise<Resultado> {
         );
       }
 
+      if (pedidoRef) {
+        tx.update(pedidoRef, {
+          estado: "confirmado",
+          facturaId: facturaRef.id,
+          actualizadoEn: FieldValue.serverTimestamp(),
+        });
+      }
+
       return { numero };
     });
 
     refrescar(facturaRef.id);
+    if (entrada.pedidoId) revalidatePath("/admin/pedidos");
     return { ok: true, id: facturaRef.id, numero: resultado.numero };
   } catch (e) {
     return { ok: false, error: (e as Error).message || "No se pudo emitir la factura." };

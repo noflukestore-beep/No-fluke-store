@@ -218,13 +218,6 @@ export default function MarcoTienda({
       )}
 
       <div className="flex pt-24 sm:pt-28">
-        {/* Sidebar escritorio */}
-        <aside className="hidden w-56 shrink-0 border-r border-white/10 bg-[#070c09] lg:block">
-          <div className="sticky top-28 h-[calc(100dvh-7rem)] overflow-y-auto">
-            <NavCategorias categorias={categorias} />
-          </div>
-        </aside>
-
         <div className="flex min-w-0 flex-1 flex-col pb-16 lg:pb-0">
           <main className="flex-1 p-4 md:p-6">{children}</main>
         </div>

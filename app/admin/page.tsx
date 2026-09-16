@@ -4,14 +4,16 @@ import {
   INVENTARIO,
   KPIS,
   PEDIDOS_DEMO,
-  PRODUCTOS_DESTACADOS,
   PRODUCTOS_TOP,
   VENTAS_30D,
 } from "@/lib/admin/demo";
+import { listarProductosAdmin } from "@/lib/firebase/admin-catalogo";
 import { formatearRD, formatearRDCorto } from "@/lib/precios";
 import type { EstadoPedido } from "@/lib/firebase/tipos";
 
 export const metadata = { title: "Dashboard · Panel" };
+// Siempre fresco: un producto recién guardado debe verse aquí de inmediato.
+export const dynamic = "force-dynamic";
 
 const COLOR_ESTADO: Record<EstadoPedido, string> = {
   pendiente: "bg-amber-400/15 text-amber-300",
@@ -20,7 +22,10 @@ const COLOR_ESTADO: Record<EstadoPedido, string> = {
   cancelado: "bg-rose-400/15 text-rose-300",
 };
 
-export default function Dashboard() {
+export default async function Dashboard() {
+  const productos = await listarProductosAdmin();
+  const productosRecientes = productos.slice(0, 4);
+
   return (
     <div className="space-y-5">
       {/* Encabezado */}
@@ -226,32 +231,61 @@ export default function Dashboard() {
 
         <Panel className="p-5 lg:col-span-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-white/70">
-              Productos destacados
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-white/70">
+              Productos recientes
+              <span className="rounded-full bg-verde/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-verde">
+                en vivo
+              </span>
             </h2>
             <Link href="/admin/productos" className="text-xs text-verde hover:underline">
               Ver todos →
             </Link>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            {PRODUCTOS_DESTACADOS.map((p) => (
-              <div
-                key={p.nombre}
-                className="rounded-lg border border-white/10 bg-white/5 p-2.5"
-              >
-                <div className="aspect-square rounded-md border border-white/10 bg-gradient-to-br from-white/5 to-transparent" />
-                <p className="mt-2 truncate text-sm font-medium">{p.nombre}</p>
-                <div className="mt-0.5 flex items-center justify-between">
-                  <span className="text-sm font-bold text-verde">
-                    {formatearRD(p.precio)}
-                  </span>
-                  <span className="text-xs text-white/40">
-                    ★ {p.rating} ({p.reseñas})
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+          {productosRecientes.length === 0 ? (
+            <p className="mt-4 text-center text-sm text-white/40">
+              Todavía no has creado ningún producto.
+            </p>
+          ) : (
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              {productosRecientes.map((p) => {
+                const foto = p.imagenes[0];
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/admin/productos/${p.id}`}
+                    className="rounded-lg border border-white/10 bg-white/5 p-2.5 transition-colors hover:border-verde/40"
+                  >
+                    <div className="relative aspect-square overflow-hidden rounded-md border border-white/10 bg-gradient-to-br from-white/5 to-transparent">
+                      {foto && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={foto.url}
+                          alt={foto.alt || p.nombre}
+                          className="h-full w-full object-cover"
+                        />
+                      )}
+                      {!p.activo && (
+                        <span className="absolute left-1 top-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white/70">
+                          Oculto
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-2 truncate text-sm font-medium">
+                      {p.nombre}
+                    </p>
+                    <div className="mt-0.5 flex items-center justify-between">
+                      <span className="text-sm font-bold text-verde">
+                        {formatearRD(p.precio)}
+                      </span>
+                      <span className="text-xs text-white/40">
+                        {p.categoriaNombre || "—"}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </Panel>
       </div>
     </div>

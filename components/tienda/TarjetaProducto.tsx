@@ -16,10 +16,7 @@ export default function TarjetaProducto({
   const { valor, tipo } = precioEfectivo(producto, 1);
   const tachado = precioTachado(producto, valor, tipo);
   const agotado = producto.stockTotal <= 0;
-  const pocas =
-    !agotado && producto.stockTotal <= producto.stockMinimo
-      ? producto.stockTotal
-      : null;
+  const pocas = !agotado && producto.stockTotal <= producto.stockMinimo;
   const foto = producto.imagenes[0];
 
   return (
@@ -64,11 +61,6 @@ export default function TarjetaProducto({
             </span>
           </div>
         )}
-        {pocas != null && (
-          <span className="absolute bottom-2 left-2 rounded-md bg-rose-500/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
-            Últimas {pocas}
-          </span>
-        )}
       </div>
 
       <div className="flex flex-1 flex-col p-2.5">
@@ -97,6 +89,22 @@ export default function TarjetaProducto({
               {formatearRDCorto(producto.precioMayor)}
             </p>
           )}
+
+          <p
+            className={`mt-1 text-[11px] font-semibold ${
+              agotado
+                ? "text-rose-400"
+                : pocas
+                  ? "text-amber-400"
+                  : "text-white/40"
+            }`}
+          >
+            {agotado
+              ? "Agotado"
+              : pocas
+                ? `¡Últimas ${producto.stockTotal}!`
+                : `${producto.stockTotal} disponibles`}
+          </p>
         </div>
       </div>
     </Link>

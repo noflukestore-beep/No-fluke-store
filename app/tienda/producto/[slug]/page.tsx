@@ -97,11 +97,21 @@ export default async function ProductoPagina({
           </p>
         )}
 
-        {!agotado && producto.stockTotal <= producto.stockMinimo && (
-          <p className="mt-3 text-sm font-semibold text-rose-400">
-            ¡Últimas {producto.stockTotal} unidades!
-          </p>
-        )}
+        <p
+          className={`mt-3 text-sm font-semibold ${
+            agotado
+              ? "text-rose-400"
+              : producto.stockTotal <= producto.stockMinimo
+                ? "text-amber-400"
+                : "text-white/50"
+          }`}
+        >
+          {agotado
+            ? "Agotado"
+            : producto.stockTotal <= producto.stockMinimo
+              ? `¡Últimas ${producto.stockTotal} unidades!`
+              : `${producto.stockTotal} unidades disponibles`}
+        </p>
 
         {(tallas.length > 0 || colores.length > 0) && (
           <div className="mt-5 space-y-3">

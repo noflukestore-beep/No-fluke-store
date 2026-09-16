@@ -129,10 +129,6 @@ export async function obtenerProductos(): Promise<ProductoPublico[]> {
   return (await cargarCatalogo()).productos;
 }
 
-export async function obtenerDestacados(): Promise<ProductoPublico[]> {
-  return (await obtenerProductos()).filter((p) => p.destacado);
-}
-
 /** Productos con oferta vigente ahora. */
 export async function obtenerOfertas(): Promise<ProductoPublico[]> {
   return (await obtenerProductos()).filter(

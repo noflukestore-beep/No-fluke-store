@@ -2,17 +2,17 @@ import Link from "next/link";
 import TarjetaProducto from "@/components/tienda/TarjetaProducto";
 import {
   obtenerCategorias,
-  obtenerDestacados,
   obtenerOfertas,
+  obtenerProductos,
 } from "@/lib/firebase/catalogo";
 
 export const metadata = { title: "Tienda" };
 export const revalidate = 60;
 
 export default async function TiendaInicio() {
-  const [categorias, destacados, ofertas] = await Promise.all([
+  const [categorias, productos, ofertas] = await Promise.all([
     obtenerCategorias(),
-    obtenerDestacados(),
+    obtenerProductos(),
     obtenerOfertas(),
   ]);
 
@@ -64,18 +64,18 @@ export default async function TiendaInicio() {
         </section>
       )}
 
-      {/* Destacados */}
+      {/* Catálogo */}
       <section>
         <h2 className="mb-3 font-display text-lg font-extrabold uppercase tracking-tight">
-          Destacados
+          Catálogo
         </h2>
-        {destacados.length === 0 ? (
+        {productos.length === 0 ? (
           <p className="py-12 text-center text-sm text-white/40">
-            Todavía no hay productos destacados.
+            Todavía no hay productos.
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {destacados.map((p) => (
+            {productos.map((p) => (
               <TarjetaProducto key={p.id} producto={p} />
             ))}
           </div>

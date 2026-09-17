@@ -17,7 +17,13 @@ function construirMensaje(params: {
   codigo: string;
   nombre: string;
   direccion: string;
-  items: { productoNombre: string; varianteDesc: string; cantidad: number; precioUnitario: number }[];
+  items: {
+    productoNombre: string;
+    productoSku: string | null;
+    varianteDesc: string;
+    cantidad: number;
+    precioUnitario: number;
+  }[];
   total: number;
   enlaceAdmin: string;
 }): string {
@@ -26,7 +32,7 @@ function construirMensaje(params: {
     "",
     ...params.items.map(
       (i) =>
-        `• ${i.cantidad}x ${i.productoNombre}` +
+        `• ${i.productoSku ? `[${i.productoSku}] ` : ""}${i.cantidad}x ${i.productoNombre}` +
         (i.varianteDesc && i.varianteDesc !== "Único" ? ` (${i.varianteDesc})` : "") +
         ` — ${formatearRD(i.precioUnitario * i.cantidad)}`,
     ),

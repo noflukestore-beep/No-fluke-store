@@ -143,6 +143,9 @@ function TarjetaPedido({ pedido }: { pedido: Pedido }) {
       <ul className="mt-3 space-y-0.5 border-t border-white/5 pt-2 text-xs text-white/55">
         {pedido.items.map((it, i) => (
           <li key={i} className="truncate">
+            {it.productoSku && (
+              <span className="font-mono text-white/35">[{it.productoSku}] </span>
+            )}
             {it.cantidad}x {it.productoNombre}
             {it.varianteDesc !== "Único" ? ` (${it.varianteDesc})` : ""}
           </li>

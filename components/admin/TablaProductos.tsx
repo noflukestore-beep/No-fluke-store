@@ -81,7 +81,14 @@ export default function TablaProductos({
                 <tr key={p.id} className="hover:bg-white/[0.02]">
                   <td className="px-3 py-2.5">
                     <p className="font-medium">{p.nombre}</p>
-                    <p className="text-xs text-white/40">{p.marca || "—"}</p>
+                    <p className="text-xs text-white/40">
+                      {p.marca || "—"}
+                      {p.sku && (
+                        <span className="ml-1.5 font-mono text-white/30">
+                          {p.sku}
+                        </span>
+                      )}
+                    </p>
                   </td>
                   <td className="px-3 py-2.5 text-white/70">
                     {p.categoriaNombre || "—"}

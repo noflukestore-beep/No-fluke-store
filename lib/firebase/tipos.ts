@@ -59,6 +59,11 @@ export interface Producto {
   slug: string;
   descripcion: string;
   marca: string;
+  /**
+   * Código único del artículo, ej. "ART-000042". Se genera solo al crear el
+   * producto (correlativo, ver `actions/productos.ts`) — nunca lo escribe el
+   * admin ni cambia después. Identifica la mercancía en pedidos y facturas.
+   */
   sku: string | null;
   codigoBarra: string | null;
   genero: Genero | null;
@@ -115,6 +120,9 @@ export interface PedidoItem {
   productoId: string;
   varianteId: string;
   productoNombre: string;
+  /** Código único del artículo (`Producto.sku`), para identificar la
+   * mercancía en el mensaje de WhatsApp y al facturar. */
+  productoSku: string | null;
   /** Ej. "Talla M / Negro". */
   varianteDesc: string;
   precioUnitario: number;

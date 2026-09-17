@@ -32,7 +32,6 @@ export interface ProductoInput {
   nombre: string;
   descripcion: string;
   marca: string;
-  sku: string;
   codigoBarra: string;
   genero: Genero | "";
   categoriaId: string;
@@ -105,6 +104,23 @@ async function slugUnico(base: string, idPropio?: string): Promise<string> {
   return `${base}-${Date.now()}`;
 }
 
+/**
+ * Código correlativo único del artículo, ej. "ART-000042". Se asigna una
+ * sola vez al crear el producto (o al abrir por primera vez uno viejo que
+ * no tenía). El contador vive en `contadores/productos`, igual que el de
+ * facturas, para que nunca se repita aunque se cree más de uno a la vez.
+ */
+async function generarCodigoProducto(): Promise<string> {
+  const contadorRef = adminDb.doc("contadores/productos");
+  const n = await adminDb.runTransaction(async (tx) => {
+    const snap = await tx.get(contadorRef);
+    const siguiente = (Number(snap.data()?.ultimo) || 0) + 1;
+    tx.set(contadorRef, { ultimo: siguiente }, { merge: true });
+    return siguiente;
+  });
+  return `ART-${String(n).padStart(6, "0")}`;
+}
+
 export async function guardarProducto(
   entrada: ProductoInput,
 ): Promise<Resultado> {
@@ -119,6 +135,13 @@ export async function guardarProducto(
   const cat = catSnap.data()!;
 
   const slug = await slugUnico(generarSlug(entrada.nombre), entrada.id);
+
+  // Si es una edición, reutiliza el código del artículo; si el producto es
+  // viejo y todavía no tenía (o si es uno nuevo), se genera uno ahora.
+  const previo = entrada.id
+    ? await adminDb.collection("productos").doc(entrada.id).get()
+    : null;
+  const sku = previo?.data()?.sku || (await generarCodigoProducto());
 
   const variantes = entrada.variantes.map((v, i) => ({
     id: v.id || `v${i + 1}`,
@@ -145,7 +168,7 @@ export async function guardarProducto(
     slug,
     descripcion: entrada.descripcion.trim(),
     marca: entrada.marca.trim(),
-    sku: entrada.sku.trim() || null,
+    sku,
     codigoBarra: entrada.codigoBarra.trim() || null,
     genero: entrada.genero || null,
     categoriaId: entrada.categoriaId,
@@ -183,8 +206,7 @@ export async function guardarProducto(
   let id = entrada.id;
   if (id) {
     // Borra de Storage las fotos que se quitaron en esta edición.
-    const previo = await adminDb.collection("productos").doc(id).get();
-    const pathsAntes: string[] = (previo.data()?.imagenes ?? [])
+    const pathsAntes: string[] = (previo?.data()?.imagenes ?? [])
       .map((im: { path?: string }) => im?.path)
       .filter(Boolean);
     const pathsAhora = new Set(imagenes.map((im) => im.path).filter(Boolean));

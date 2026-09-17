@@ -150,6 +150,7 @@ export async function crearPedido(
         productoId: snap.id,
         varianteId: i.varianteId,
         productoNombre: String(d.nombre ?? ""),
+        productoSku: typeof d.sku === "string" ? d.sku : null,
         varianteDesc:
           [v.talla, v.color]
             .map((x) => String(x ?? "").trim())

@@ -67,7 +67,6 @@ export default function FormularioProducto({
     producto?.genero ?? "",
   );
   const [descripcion, setDescripcion] = useState(producto?.descripcion ?? "");
-  const sku = producto?.sku ?? "";
   const codigoBarra = producto?.codigoBarra ?? "";
   const [activo, setActivo] = useState(producto?.activo ?? true);
   const [destacado, setDestacado] = useState(producto?.destacado ?? false);
@@ -275,7 +274,6 @@ export default function FormularioProducto({
       nombre,
       descripcion,
       marca,
-      sku,
       codigoBarra,
       genero,
       categoriaId,
@@ -316,6 +314,14 @@ export default function FormularioProducto({
     <form onSubmit={enviar} className="max-w-3xl space-y-6 pb-28">
       {/* Información */}
       <Seccion titulo="Información">
+        <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+          <span className="text-xs font-medium text-white/50">
+            Código del artículo
+          </span>
+          <span className="font-mono text-sm font-bold text-verde">
+            {producto?.sku || "se genera al guardar"}
+          </span>
+        </div>
         <Campo etiqueta="Nombre" requerido>
           <input
             value={nombre}

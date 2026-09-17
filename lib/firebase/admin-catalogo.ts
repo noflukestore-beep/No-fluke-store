@@ -179,6 +179,7 @@ function mapearPedido(id: string, d: DocumentData): Pedido {
       productoId: it.productoId ?? "",
       varianteId: it.varianteId ?? "",
       productoNombre: it.productoNombre ?? "",
+      productoSku: it.productoSku ?? null,
       varianteDesc: it.varianteDesc ?? "Único",
       precioUnitario: Number(it.precioUnitario) || 0,
       tipoPrecio: it.tipoPrecio ?? "detalle",

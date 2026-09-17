@@ -58,7 +58,7 @@ export default function FormularioFactura({
         lista.push({
           productoId: p.id,
           varianteId: v.id,
-          etiqueta: `${p.nombre}${attrs ? ` — ${attrs}` : ""}`,
+          etiqueta: `${p.sku ? `[${p.sku}] ` : ""}${p.nombre}${attrs ? ` — ${attrs}` : ""}`,
           stock: v.stock,
           precio,
         });
@@ -85,10 +85,11 @@ export default function FormularioFactura({
         key: `${it.productoId}:${it.varianteId}`,
         productoId: it.productoId,
         varianteId: it.varianteId,
-        descripcion:
+        descripcion: `${it.productoSku ? `[${it.productoSku}] ` : ""}${
           it.varianteDesc && it.varianteDesc !== "Único"
             ? `${it.productoNombre} — ${it.varianteDesc}`
-            : it.productoNombre,
+            : it.productoNombre
+        }`,
         stock,
         cantidad: it.cantidad,
         precioUnitario: it.precioUnitario,

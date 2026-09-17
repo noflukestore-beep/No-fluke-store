@@ -223,7 +223,12 @@ export interface Factura {
 
 // --- Inventario ------------------------------------------------------
 
-export type TipoMovimiento = "entrada" | "salida" | "ajuste" | "venta";
+export type TipoMovimiento =
+  | "entrada"
+  | "salida"
+  | "ajuste"
+  | "venta"
+  | "devolucion";
 
 /** Una línea de la bitácora de inventario. Cada ajuste deja una. */
 export interface MovimientoInventario {

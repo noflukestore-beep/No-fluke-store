@@ -173,6 +173,19 @@ export async function obtenerFactura(id: string): Promise<Factura | null> {
   return mapearFactura(snap.id, snap.data()!);
 }
 
+/** Busca por el número legible (ej. "FACT-000012"), no por el id interno. */
+export async function obtenerFacturaPorNumero(
+  numero: string,
+): Promise<Factura | null> {
+  const snap = await adminDb
+    .collection("facturas")
+    .where("numero", "==", numero.trim().toUpperCase())
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+  return mapearFactura(snap.docs[0].id, snap.docs[0].data());
+}
+
 function mapearPedido(id: string, d: DocumentData): Pedido {
   const items: PedidoItem[] = (Array.isArray(d.items) ? d.items : []).map(
     (it: DocumentData) => ({

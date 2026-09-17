@@ -8,12 +8,14 @@ const ETIQUETA: Record<TipoMovimiento, string> = {
   salida: "Salida",
   ajuste: "Ajuste",
   venta: "Venta",
+  devolucion: "Devolución",
 };
 const CLASE: Record<TipoMovimiento, string> = {
   entrada: "bg-verde/15 text-verde",
   salida: "bg-rose-500/15 text-rose-300",
   ajuste: "bg-amber-400/15 text-amber-300",
   venta: "bg-sky-400/15 text-sky-300",
+  devolucion: "bg-white/10 text-white/60",
 };
 
 function fecha(millis: number) {

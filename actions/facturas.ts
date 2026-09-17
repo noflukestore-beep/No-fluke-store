@@ -8,8 +8,18 @@ import {
 } from "firebase-admin/firestore";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { adminDb } from "@/lib/firebase/admin";
+import { obtenerFacturaPorNumero } from "@/lib/firebase/admin-catalogo";
+import type { Factura } from "@/lib/firebase/tipos";
 import { formatearRD } from "@/lib/precios";
 import { normalizarTelefono } from "@/lib/texto";
+
+/** Para el módulo de Devoluciones: busca por el número que ve el cliente. */
+export async function buscarFacturaPorNumero(
+  numero: string,
+): Promise<Factura | null> {
+  if (!numero.trim()) return null;
+  return obtenerFacturaPorNumero(numero);
+}
 
 // TODO (login admin): verificar sesión + claim rol=admin al inicio de cada
 // acción. Los Server Actions son alcanzables por POST directo.
@@ -423,11 +433,12 @@ export async function anularFactura(entrada: AnularInput): Promise<Resultado> {
               varianteDesc:
                 [vv?.talla, vv?.color].map((x) => String(x ?? "").trim()).filter(Boolean).join(" / ") ||
                 "Único",
-              tipo: "entrada",
+              tipo: "devolucion",
               cantidad: cant,
               stockAntes: (Number(vv?.stock) || 0) - cant,
               stockDespues: Number(vv?.stock) || 0,
               motivo: `Anulación ${f.numero}`,
+              costoUnitario: null,
               creadoEn: FieldValue.serverTimestamp(),
             });
           }
@@ -533,11 +544,12 @@ export async function registrarDevolucion(
             varianteDesc:
               [vv?.talla, vv?.color].map((x) => String(x ?? "").trim()).filter(Boolean).join(" / ") ||
               "Único",
-            tipo: "entrada",
+            tipo: "devolucion",
             cantidad: cant,
             stockAntes: (Number(vv?.stock) || 0) - cant,
             stockDespues: Number(vv?.stock) || 0,
             motivo: `Devolución ${f.numero}`,
+            costoUnitario: null,
             creadoEn: FieldValue.serverTimestamp(),
           });
         }

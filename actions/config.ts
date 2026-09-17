@@ -1,7 +1,7 @@
 "use server";
 
 import { FieldValue } from "firebase-admin/firestore";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { adminDb } from "@/lib/firebase/admin";
 import type { Config } from "@/lib/firebase/tipos";
 
@@ -110,8 +110,12 @@ export async function guardarConfig(entrada: ConfigInput): Promise<Resultado> {
     { merge: true },
   );
 
-  revalidateTag("catalogo", "max");
-  revalidateTag("config", "max");
+  // `updateTag` (no "stale-while-revalidate") porque el número de WhatsApp
+  // es crítico para el pedido: la próxima visita a /tienda/carrito debe
+  // recibir el número nuevo de inmediato, nunca uno viejo mientras
+  // revalida en segundo plano.
+  updateTag("catalogo");
+  updateTag("config");
   revalidatePath("/admin/config");
   return {
     ok: true,

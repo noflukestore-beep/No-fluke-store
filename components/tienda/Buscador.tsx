@@ -81,8 +81,6 @@ export default function Buscador({
           </svg>
         </button>
 
-        <Lupa className="h-4 w-4 shrink-0 text-white/35" />
-
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}

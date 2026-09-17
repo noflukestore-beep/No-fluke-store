@@ -222,6 +222,27 @@ export async function guardarProducto(
       creadoEn: FieldValue.serverTimestamp(),
     });
     id = ref.id;
+
+    // Deja constancia en la bitácora de inventario de la existencia con la
+    // que nace el producto — es la base del Reporte de Compra.
+    const conStock = variantes.filter((v) => v.stock > 0);
+    await Promise.all(
+      conStock.map((v) =>
+        adminDb.collection("movimientos").add({
+          productoId: id,
+          productoNombre: datos.nombre,
+          varianteId: v.id,
+          varianteDesc: [v.talla, v.color].filter(Boolean).join(" / ") || "Único",
+          tipo: "entrada",
+          cantidad: v.stock,
+          stockAntes: 0,
+          stockDespues: v.stock,
+          motivo: "Alta de producto",
+          costoUnitario: entrada.precioCompra,
+          creadoEn: FieldValue.serverTimestamp(),
+        }),
+      ),
+    );
   }
 
   revalidateTag("catalogo", "max");

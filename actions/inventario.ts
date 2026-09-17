@@ -92,6 +92,10 @@ export async function ajustarStock(entrada: AjusteInput): Promise<Resultado> {
         stockAntes: antes,
         stockDespues: despues,
         motivo: entrada.motivo.trim() || null,
+        costoUnitario:
+          entrada.modo === "entrada" && typeof d.precioCompra === "number"
+            ? d.precioCompra
+            : null,
         creadoEn: FieldValue.serverTimestamp(),
       });
 

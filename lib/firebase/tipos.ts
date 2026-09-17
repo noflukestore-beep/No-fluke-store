@@ -239,6 +239,13 @@ export interface MovimientoInventario {
   stockAntes: number;
   stockDespues: number;
   motivo: string | null;
+  /**
+   * Costo unitario del producto al momento del movimiento (solo se llena en
+   * `tipo: "entrada"`). Es la base del Reporte de Compra: invertido =
+   * cantidad × costoUnitario. `null` si el producto no tenía costo
+   * registrado.
+   */
+  costoUnitario: number | null;
   creadoEn: number;
 }
 

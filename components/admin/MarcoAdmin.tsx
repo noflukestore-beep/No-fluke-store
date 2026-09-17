@@ -12,6 +12,8 @@ type IconoNombre =
   | "categorias"
   | "pedidos"
   | "facturas"
+  | "reporteCompra"
+  | "reporteVenta"
   | "config";
 
 const RUTAS: Array<{
@@ -26,6 +28,16 @@ const RUTAS: Array<{
   { href: "/admin/categorias", etiqueta: "Categorías", icono: "categorias" },
   { href: "/admin/pedidos", etiqueta: "Pedidos", icono: "pedidos", badge: 3 },
   { href: "/admin/facturas", etiqueta: "Facturas", icono: "facturas" },
+  {
+    href: "/admin/reportes/venta",
+    etiqueta: "Reporte Venta",
+    icono: "reporteVenta",
+  },
+  {
+    href: "/admin/reportes/compra",
+    etiqueta: "Reporte Compra",
+    icono: "reporteCompra",
+  },
   { href: "/admin/config", etiqueta: "Configuración", icono: "config" },
 ];
 
@@ -37,6 +49,8 @@ function Icono({ nombre }: { nombre: IconoNombre }) {
     categorias: "M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z",
     pedidos: "M6 2h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1Zm8 1v5h5M8 13h8M8 17h6",
     facturas: "M7 3h10a1 1 0 0 1 1 1v17l-3-2-3 2-3-2-3 2V4a1 1 0 0 1 1-1Zm2 5h6M9 12h6M9 16h4",
+    reporteVenta: "M4 19V10m5 9V5m5 14v-7m5 7V8M3 19h18",
+    reporteCompra: "M6 7h12l-1.2 12.1a1 1 0 0 1-1 .9H8.2a1 1 0 0 1-1-.9L6 7Zm2.5 0V5.5a3.5 3.5 0 0 1 7 0V7",
     config: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8-3a8 8 0 0 0-.2-1.8l2-1.5-2-3.4-2.3 1a8 8 0 0 0-3-1.8L14 1h-4l-.5 2.7a8 8 0 0 0-3 1.8l-2.3-1-2 3.4 2 1.5A8 8 0 0 0 4 12c0 .6 0 1.2.2 1.8l-2 1.5 2 3.4 2.3-1a8 8 0 0 0 3 1.8L10 23h4l.5-2.7a8 8 0 0 0 3-1.8l2.3 1 2-3.4-2-1.5c.1-.6.2-1.2.2-1.8Z",
   };
   return (

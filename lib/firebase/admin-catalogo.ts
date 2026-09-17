@@ -4,7 +4,7 @@
  * SOLO servidor.
  */
 import "server-only";
-import type { DocumentData } from "firebase-admin/firestore";
+import type { DocumentData, Query } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase/admin";
 import {
   normalizarConfig,
@@ -221,6 +221,23 @@ export async function obtenerPedidoAdmin(id: string): Promise<Pedido | null> {
   return mapearPedido(snap.id, snap.data()!);
 }
 
+function mapearMovimiento(id: string, d: DocumentData): MovimientoInventario {
+  return {
+    id,
+    productoId: d.productoId ?? "",
+    productoNombre: d.productoNombre ?? "",
+    varianteId: d.varianteId ?? "",
+    varianteDesc: d.varianteDesc ?? "Único",
+    tipo: d.tipo ?? "ajuste",
+    cantidad: typeof d.cantidad === "number" ? d.cantidad : 0,
+    stockAntes: typeof d.stockAntes === "number" ? d.stockAntes : 0,
+    stockDespues: typeof d.stockDespues === "number" ? d.stockDespues : 0,
+    motivo: d.motivo ?? null,
+    costoUnitario: typeof d.costoUnitario === "number" ? d.costoUnitario : null,
+    creadoEn: aMillis(d.creadoEn) ?? 0,
+  };
+}
+
 export async function listarMovimientos(
   limite = 120,
 ): Promise<MovimientoInventario[]> {
@@ -229,20 +246,33 @@ export async function listarMovimientos(
     .orderBy("creadoEn", "desc")
     .limit(limite)
     .get();
-  return snap.docs.map((doc) => {
-    const d = doc.data();
-    return {
-      id: doc.id,
-      productoId: d.productoId ?? "",
-      productoNombre: d.productoNombre ?? "",
-      varianteId: d.varianteId ?? "",
-      varianteDesc: d.varianteDesc ?? "Único",
-      tipo: d.tipo ?? "ajuste",
-      cantidad: typeof d.cantidad === "number" ? d.cantidad : 0,
-      stockAntes: typeof d.stockAntes === "number" ? d.stockAntes : 0,
-      stockDespues: typeof d.stockDespues === "number" ? d.stockDespues : 0,
-      motivo: d.motivo ?? null,
-      creadoEn: aMillis(d.creadoEn) ?? 0,
-    };
-  });
+  return snap.docs.map((doc) => mapearMovimiento(doc.id, doc.data()));
+}
+
+/**
+ * Todas las entradas de inventario ("Alta de producto" + ajustes de
+ * entrada), sin límite de fecha ni cantidad — es la base del Reporte de
+ * Compra, que filtra por rango de fechas en memoria. Un solo `where` de
+ * igualdad no necesita índice compuesto.
+ */
+export async function listarEntradasInventario(): Promise<
+  MovimientoInventario[]
+> {
+  const snap = await adminDb
+    .collection("movimientos")
+    .where("tipo", "==", "entrada")
+    .get();
+  return snap.docs.map((doc) => mapearMovimiento(doc.id, doc.data()));
+}
+
+/** Facturas emitidas cuya fecha cae dentro del rango (en millis). */
+export async function listarFacturasEnRango(
+  desde: number | null,
+  hasta: number | null,
+): Promise<Factura[]> {
+  let q: Query = adminDb.collection("facturas");
+  if (desde != null) q = q.where("fechaEmision", ">=", desde);
+  if (hasta != null) q = q.where("fechaEmision", "<=", hasta);
+  const snap = await q.orderBy("fechaEmision", "desc").get();
+  return snap.docs.map((doc) => mapearFactura(doc.id, doc.data()));
 }
